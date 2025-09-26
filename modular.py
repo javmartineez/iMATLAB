@@ -15,10 +15,19 @@ Librería para la realización de cálculos y resolución de problemas de aritm�
 
 from typing import Tuple, List, Dict
 import math
+import excepciones as e 
 
 class IncompatibleEquationError(Exception):
     pass
+ 
 
+def comprobar_ints(valores) -> None:
+    """
+    Función para la comprobacion de entradas que requieren un int
+    """
+    for v in valores:
+        if type(v) is not int:
+            raise TypeError(f"La entrada debe ser int (no str/float/bool).")
 
 
 def es_primo(n:int)->bool:
@@ -38,17 +47,16 @@ def es_primo(n:int)->bool:
         es_primo(4)=False
         
     """
-    n = abs(n)
+    comprobar_ints(n)
 
-    if n == 1: 
-        return True 
+    n = abs(n)
+    if n < 2: 
+        return False
     
     if n % 2 == 1:
-        
         for i in range(3, math.isqrt(n) + 1, 2):
             if n % i == 0:
-                return False
-            
+                return False     
         return True
     elif n == 2:
         return True
@@ -71,6 +79,10 @@ def lista_primos(a,b)-> List[int]:
     Examples:
         lista_primos(1,11)=[2,3,5,7]
     """
+    comprobar_ints(a, b)
+    # if a < b: 
+    #     raise e.UnorderedValues("Error: lista_primos recibe {a, b} con a < b")
+
     primos = []
 
     for i in range(a, b):
@@ -102,6 +114,8 @@ def factorizar(n:int)->Dict[int,int]:
     #Comprobamos si cada uno de esos primos es divisor, contando cuantas veces lo es
     #En caso de serlo, añadimos el numero y el valor del contador al diccionario 
 
+    comprobar_ints(n)
+
     if n in {0, 1, -1}:
         return {}
 
@@ -131,8 +145,6 @@ def factorizar(n:int)->Dict[int,int]:
 
 
 
-            
-
 
 def mcd(a:int,b:int)->int:
     """ Calcula el máximo común divisor de dos enteros a y b.
@@ -150,6 +162,8 @@ def mcd(a:int,b:int)->int:
     """
     #Hacemos uso del algoritmo de Euclides
     # el mcd es independiente del signo por lo que utilizamos el valor aboluto
+    
+    comprobar_ints(a, b)
     a, b = abs(a), abs(b)
 
     # garantizar 0 < a <= b (o a=0)
@@ -202,6 +216,8 @@ def mcd_n(nlist:List[int])->int:
     #La idea es calcular cada pareja y añadir el resultado al final de la lista hasta que 
     #solo queden dos y se trate de un mcd trivial. No se trata de la version más eficiente
     #posiblemente 
+    
+    comprobar_ints(nlist)
 
     g = 0
     for x in nlist:                 # O(n) llamadas a mcd; no se modifica la lista
@@ -212,8 +228,6 @@ def mcd_n(nlist:List[int])->int:
     return g
 
 
-
-    
 
 
 def bezout_n(nlist:List[int])->Tuple[int,List[int]]:
