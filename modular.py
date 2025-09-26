@@ -38,10 +38,17 @@ def es_primo(n:int)->bool:
         es_primo(4)=False
         
     """
+    n = abs(n)
+
+    if n == 1: 
+        return True 
+    
     if n % 2 == 1:
+        
         for i in range(3, math.isqrt(n) + 1, 2):
             if n % i == 0:
                 return False
+            
         return True
     elif n == 2:
         return True
