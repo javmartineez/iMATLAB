@@ -16,16 +16,30 @@ Interfaz de acceso interactivo o por lotes a la librería modular.py. Si este sc
 lanzar´a la interfaz de usuario para el modo interactivo.
 """
 
-from typing import TextIO
-import modular
 import excepciones as e
 
 
 
 # imatlab.py
-import modular
+import modular as m
 from typing import TextIO
 
+def check_integers(lista: list) -> bool:
+    for i in lista:
+        if type(i) != int:
+            raise TypeError
+        
+def check_mod(n: int):
+    if n < 2:
+        raise e.ModError
+
+def check_positive(n: int):
+    if n <= 0:
+        raise e.PositiveError
+
+def check_prime(n: int):
+    if not m.es_primo(n):
+        raise e.PrimeError
 
 
 def run_commands(fin: TextIO, fout: TextIO) -> None:
@@ -52,7 +66,8 @@ def run_commands(fin: TextIO, fout: TextIO) -> None:
 def primo(a: int) -> str: 
 
     try:
-        return "Sí" if modular.es_primo(a) else "No"
+        check_integers([a])
+        return "Sí" if m.es_primo(a) else "No"
 
     except TypeError:
         print("Entrada inválida: primo() recibe un entero")
@@ -60,7 +75,8 @@ def primo(a: int) -> str:
 
 def primos(a: int, b: int):
     try: 
-        lista = modular.lista_primos(a, b)
+        check_integers([a, b])
+        lista = m.lista_primos(a, b)
         return "NE" if not lista else ", ".join(str(p) for p in lista)
 
     except TypeError: 
@@ -68,24 +84,81 @@ def primos(a: int, b: int):
 
 
 
-def factorizar(n: int) -> str:
+def factorizar(n: int) -> str: #Hay que cambiarla
     """Devuelve la factorización de n en formato 'p1:e1, p2:e2,...'."""
     try:
         if n == 0:
             return "0"
-        factores = modular.factorizar(n)  # dict {p:e}
+        factores = m.factorizar(n)  # dict {p:e}
         # Ordena por primo para que el string sea determinista
         pares = [f"{p}: {e}" for p, e in sorted(factores.items())]
         return ", ".join(pares)
     
     except Exception as e:
         return e
-def mcd(lista:list) -> int:
-    for i in lista:
-        if type(i) != int:
-            return TypeError("Entrada inválida: las entrada debe ser una lista de números enteros")
-    return modular.mcd_n(lista)
+    
+def mcd(lista: list) -> int:
+    try:
+        check_integers(lista)
+        return m.mcd_n(lista)
+    except TypeError:
+        return "Entrada inválida: las entradas deben ser números enteros"
+
+def coprimos(a: int, b: int) -> str:
+    try:
+        check_integers([a, b])
+        return "Sí" if m.coprimos(a, b) else "No"
+    except TypeError:
+        return "Entrada inválida: las entradas deben ser números enteros"
+
+def pow(base: int, exp: int, p: int) -> int:
+    try:
+        check_integers([base, exp, p])
+        check_mod(p)
+        return m.potencia_mod_p(base, exp, p)
+    except TypeError:
+        return "Entrada inválida: las entradas deben ser números enteros"
+    except e.ModError:
+        return f"Entrada inválida: no esta permitido {p} como módulo"
+    
+def inv(n: int, p: int) -> int:
+    try:
+        check_integers([n, p])
+        check_mod(p)
+        return m.inversa_mod_p(n, p)
+    except TypeError:
+        return "Entrada inválida: las entradas deben ser números enteros"
+    except   e.ModError:
+        return f"Entrada inválida: no esta permitido {p} como módulo"
+
+def euler(n: int) -> int:
+    try:
+        check_integers([n])
+        check_positive(n)
+        return m.euler(n)
+    except TypeError:
+        return f"Entrada inválida: {n} tiene que ser entero"
+    except e.PositiveError:
+        return f"Entrada inválida: {n} tiene que ser positivo"
+
+def legendre(n: int, p: int):
+    try:
+        check_integers([n, p])
+        check_positive(n)
+        check_prime(p)
+        return m.legendre(n, p)
+    except TypeError:
+        return "Entrada inválida: las entradas deben ser enteros"
+    except e.PositiveError:
+        return f"Entrada inválida: las entrada {n} debe ser positivo"
+    except e.PrimeError:
+        return f"Entrada inválida: la entrada {p} no es primo"
+    
+    
+
+
+        
 
 if __name__ == "__main__":
-    factores = modular.factorizar(30)
+    factores = m.factorizar(30)
     print(type(factores), factores)
