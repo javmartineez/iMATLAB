@@ -47,21 +47,31 @@ def run_commands(fin: TextIO, fout: TextIO) -> None:
     # Lee comandos desde fin (una expresión por línea), los evalúa y escribe el resultado en fout.
     # Ejemplo de comando: primos(1,11)
     # """
-    # # Solo exponemos lo que queremos que se pueda ejecutar (por seguridad y claridad)
-    # env = {"primos": primos}
+    # Solo exponemos lo que queremos que se pueda ejecutar (por seguridad y claridad)
+    env = {
+        "primo": primo, 
+        "primos": primos, 
+        "factorizar": factorizar, 
+        "mcd": mcd,
+        "coprimos": coprimos, 
+        "pow": pow,
+        "inv": inv, 
+        "euler": euler, 
+        "legendre": legendre
+        }
 
-    # for raw in fin:
-    #     line = raw.strip()
-    #     if not line or line.startswith("#"):
-    #         continue
-    #     try:
-    #         # Evalúa la expresión (p. ej., "primos(1,11)") y captura su valor
-    #         result = eval(line, {"__builtins__": {}}, env)
-    #         if result is not None:
-    #             print(result, file=fout)   # añade '\n' automáticamente
-    #     except Exception as e:
-    #         print(f"ERR: {e}", file=fout)
-    pass
+    for raw in fin:
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        try:
+            # Evalúa la expresión (p. ej., "primos(1,11)") y captura su valor
+            result = eval(line, {"__builtins__": {}}, env)
+            if result is not None:
+                print(result, file=fout)   # añade '\n' automáticamente
+        except Exception as e:
+            print(f"ERR: {e}", file=fout)
+    
 
 def primo(a: int) -> str: 
 
@@ -118,8 +128,8 @@ def pow(base: int, exp: int, p: int) -> int:
         return m.potencia_mod_p(base, exp, p)
     except TypeError:
         return "Entrada inválida: las entradas deben ser números enteros"
-    except e.ModError:
-        return f"Entrada inválida: no esta permitido {p} como módulo"
+    except (ZeroDivisionError, e.ModError):
+        return "NE"
     
 def inv(n: int, p: int) -> int:
     try:
@@ -128,8 +138,8 @@ def inv(n: int, p: int) -> int:
         return m.inversa_mod_p(n, p)
     except TypeError:
         return "Entrada inválida: las entradas deben ser números enteros"
-    except   e.ModError:
-        return f"Entrada inválida: no esta permitido {p} como módulo"
+    except (ZeroDivisionError, e.ModError):
+        return "NE"
 
 def euler(n: int) -> int:
     try:
@@ -140,6 +150,8 @@ def euler(n: int) -> int:
         return f"Entrada inválida: {n} tiene que ser entero"
     except e.PositiveError:
         return f"Entrada inválida: {n} tiene que ser positivo"
+    except ValueError as error: 
+        return error
 
 def legendre(n: int, p: int):
     try:
@@ -149,16 +161,11 @@ def legendre(n: int, p: int):
         return m.legendre(n, p)
     except TypeError:
         return "Entrada inválida: las entradas deben ser enteros"
-    except e.PositiveError:
-        return f"Entrada inválida: las entrada {n} debe ser positivo"
-    except e.PrimeError:
-        return f"Entrada inválida: la entrada {p} no es primo"
+    except (ZeroDivisionError, e.ModError): 
+        return "NE"
     
     
-
-
-        
-
+    
 if __name__ == "__main__":
-    factores = m.factorizar(30)
-    print(type(factores), factores)
+    print(primos(1,11))
+

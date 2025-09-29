@@ -20,7 +20,6 @@ class IncompatibleEquationError(Exception):
     pass
 
 
-
 def es_primo(n:int)->bool: #Editado
     """ Reciba un entero n y devuelva verdadero si es un número primo y falso en caso contrario
 
@@ -66,18 +65,23 @@ def lista_primos(a,b)-> List[int]: #Editada
     Examples:
         lista_primos(1,11)=[2,3,5,7]
     """
-    #He añadido la condición de si a es par para ir de dos en dos además de eliminar la opción de a en ese caso
     primos = []
+
+    # Caso especial: si el intervalo incluye el 2
+    if a <= 2 < b:
+        primos.append(2)
+
+    # Ajustamos 'a' para empezar desde el primer impar >= a
     if a % 2 == 0:
-        for i in range(a+1, b, 2):
-            if es_primo(i):
-                primos.append(i)
-    else:    
-        for i in range(a, b, 2):
-            if es_primo(i):
-                primos.append(i)
+        a += 1
+
+    # Ahora iteramos solo sobre impares
+    for i in range(a, b, 2):
+        if es_primo(i):
+            primos.append(i)
 
     return primos
+
 
 
 
@@ -190,10 +194,6 @@ def bezout(a:int, b:int) -> Tuple[int,int,int]:
         return (d, x, y)
 
 
-
-
-
-
 def mcd_n(nlist:List[int])->int:
     """ Dados una lista de enteros, devuelve el máximo divisor común a todos ellos.
     Args:
@@ -256,6 +256,7 @@ def coprimos(n:int,m:int)->bool:
     return mcd(n,m) == 1
 
 
+
 def potencia_mod_p(base:int, exp:int, p:int) -> int:
     """ Calcula potencias módulo p.
 
@@ -274,13 +275,41 @@ def potencia_mod_p(base:int, exp:int, p:int) -> int:
     Examples:
         potencia_mod_p(2,3,7)=1
     """
-    pass
-    var = base
-    if p % base == 0:
+    
+    if p == 0:
+        raise ZeroDivisionError("El módulo no puede ser 0")
+    if base == 0 and exp == 0:
+        raise ZeroDivisionError("0^0 es indeterminado")
+
+    p = abs(p)           # trabajamos con módulo positivo
+
+    if p == 1: 
         return 0
-    for i in range(1,exp+1):
-        # if 
-        pass
+
+    # Normaliza la base con respecto al modulo 
+    base %= p
+
+    # Exponente 0
+    if exp == 0:
+        return 1 % p
+
+    # Exponente negativo: usa la inversa modular
+    if exp < 0:
+        if base == 0:
+            raise ZeroDivisionError("0 no tiene inversa módulo p; exponente negativo no permitido")
+        if not coprimos(base, p):
+            raise ZeroDivisionError(f"{base} no es invertible módulo {p}; exponente negativo no permitido")
+        base = inversa_mod_p(base, p)
+        exp = -exp
+
+    # Caso exp > 0: multiplicación repetida con módulo en cada paso (O(exp))
+    res = 1
+    for _ in range(exp):
+        res = (res * base) % p
+    return res
+
+    
+    
 
 
 def inversa_mod_p(n:int,p:int)->int:
@@ -299,7 +328,18 @@ def inversa_mod_p(n:int,p:int)->int:
     Examples:
         inversa_mod_p(2,7)=4
     """
-    pass
+
+    if p == 0:
+        raise ZeroDivisionError("El módulo no puede ser 0")
+    # Si n y p no son coprimos, no existe inversa
+    if not coprimos(n, p):
+        raise ZeroDivisionError(f"{n} no tiene inversa módulo {p} porque no son coprimos.")
+
+    # Bezout: d = mcd(n,p) y n*x + p*y = d
+    d, x, _ = bezout(n, p)
+
+    # Normalizamos a [0, p-1]
+    return x % p
 
 
 def euler(n:int)->int:
@@ -318,7 +358,28 @@ def euler(n:int)->int:
         euler(7)=6
         euler(15)=8
     """
-    pass
+
+    if n < 1:
+        raise ValueError("φ(n) está definida para n >= 1")
+    if n == 1:
+        return 1
+    if es_primo(n):
+        return n - 1
+
+    fact = factorizar(n)          # dict {p: e} con p primo y e >= 1
+
+    # Caso potencia de primo: φ(p^k) = (p-1)p^{k-1}
+    if len(fact) == 1:
+        p, k = next(iter(fact.items()))
+        return (p - 1) * pow(p, k - 1)
+
+    # Caso general, utilizamos Formula de Producto de Euler: φ(n) = n * productorio_{p|n} (1 - 1/p)
+
+    res = n
+    for p in fact.keys():
+        res = (res // p) * (p - 1)
+    return res
+
 
 
 def legendre(n:int,p:int)->int:
@@ -342,7 +403,20 @@ def legendre(n:int,p:int)->int:
         legendre(2,7)=1
         legendre(10,5)=0
     """
-    pass
+    if p == 0: 
+        raise ZeroDivisionError (f"El módulo no puede ser 0")
+    elif not es_primo(p): 
+        raise ZeroDivisionError (f"EL módulo debe ser un número primo")
+    
+    # Normalizar n al rango [0, p-1]
+    n %= p
+
+    if n == 0:
+        return 0
+    # Criterio de Euler: (an/p) ≡ n^{(p-1)/2} (mod p)
+    r = pow(n, (p - 1) // 2, p)
+
+    return 1 if r == 1 else -1    # (p-1) ≡ -1 (mod p)
 
 
 def resolver_sistema_congruencias(alist:List[int],blist:List[int],plist:List[int])->Tuple[int,int]:
@@ -420,4 +494,4 @@ def ecuacion_cuadratica(a:int,b:int,c:int,p:int)->Tuple[int,int]:
 
 
 if __name__ == "__main__":
-    print(mcd(34312,56))
+    print(inversa_mod_p(2,7))
