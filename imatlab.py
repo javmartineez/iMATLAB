@@ -80,7 +80,11 @@ def factorizar(n: int) -> str:
     
     except Exception as e:
         return e
-
+def mcd(lista:list) -> int:
+    for i in lista:
+        if type(i) != int:
+            return TypeError("Entrada inválida: las entrada debe ser una lista de números enteros")
+    return modular.mcd_n(lista)
 
 if __name__ == "__main__":
     factores = modular.factorizar(30)
