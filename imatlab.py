@@ -52,9 +52,7 @@ def run_commands(fin: TextIO, fout: TextIO) -> None:
 def primo(a: int) -> str: 
 
     try:
-        if modular.es_primo(a): 
-            return "Si"
-        return "No"
+        return "Sí" if modular.es_primo(a) else "No"
 
     except TypeError:
         print("Entrada inválida: primo() recibe un entero")
@@ -63,12 +61,7 @@ def primo(a: int) -> str:
 def primos(a: int, b: int):
     try: 
         lista = modular.lista_primos(a, b)
-
-        if not lista:   # lista vacía
-            return f"No existen primos entre {a} y {b}"
-        else:
-            # Une todos los primos en un string separados por comas
-            return ", ".join(str(p) for p in lista)
+        return "NE" if not lista else ", ".join(str(p) for p in lista)
 
     except TypeError: 
         return "Entrada inválida: los límites primos(a, b) deben ser enteros"
@@ -78,8 +71,12 @@ def primos(a: int, b: int):
 def factorizar(n: int) -> str:
     """Devuelve la factorización de n en formato 'p1:e1, p2:e2,...'."""
     try:
-        factores = modular.factorizar(n)  # debe devolver un dict {primo: exponente}
-        return ", ".join(f"{p}:{e}" for p, e in factores.items())
+        if n == 0:
+            return "0"
+        factores = modular.factorizar(n)  # dict {p:e}
+        # Ordena por primo para que el string sea determinista
+        pares = [f"{p}: {e}" for p, e in sorted(factores.items())]
+        return ", ".join(pares)
     
     except Exception as e:
         return e

@@ -21,13 +21,15 @@ class IncompatibleEquationError(Exception):
     pass
  
 
-def comprobar_ints(valores) -> None:
-    """
-    Función para la comprobacion de entradas que requieren un int
-    """
-    for v in valores:
-        if type(v) is not int:
-            raise TypeError(f"La entrada debe ser int (no str/float/bool).")
+def comprobar_ints(*valores) -> None:
+    # Permite: comprobar_ints(a, b)  o  comprobar_ints([a, b]) / (a, b)
+    if len(valores) == 1 and isinstance(valores[0], (list, tuple)):
+        items = valores[0]
+    else:
+        items = valores
+    for v in items:
+        if type(v) is not int:  # excluye bool, str, float, etc.
+            raise TypeError("La entrada debe ser int (no str/float/bool).")
 
 
 def es_primo(n:int)->bool:
