@@ -40,6 +40,7 @@ def es_primo(n:int)->bool: #Editado
     """
     #Las condiciones sencillas royo n=2,0,1 estaban después del tocho, las he puesto al principio, he puesto abs(n) que sino isqrt daba error con los negativos,además de que el -2 no estaba incluido y he separado el 0,1,-1 ha un if diferente para que no se metan en el bucle.(Lo de el principio no cambia mucho)
     n = abs(n)
+    print("Cambio para comprobar")
 
     if n == 2:
         return True
