@@ -16,7 +16,7 @@ Interfaz de acceso interactivo o por lotes a la librería modular.py. Si este sc
 lanzar´a la interfaz de usuario para el modo interactivo.
 """
 
-import excepciones
+import excepciones as e
 import re
 import sys
 import argparse
@@ -30,16 +30,16 @@ INT_RE = re.compile(r'[+-]?\d+') #expresion regular para identificar los numeros
 def check_function(function:str, argumentos:list):
 
     if function not in FUNCTIONS: 
-        raise excepciones.ArgumentError ("Command not found")
+        raise e.ArgumentError ("Command not found")
     return FUNCTIONS[function](*argumentos) 
 
 def check_argument(*args: int):
     """
-    Comprueba que todos los argumentos sean enteros.
+    Comprueba que todos los argumentos sean enteros y no vacíos.
     """
     for a in args:
         if type(a) is not int:
-            raise excepciones.ArgumentError
+            raise e.ArgumentError
 
 
 def extraer_comando(linea:str) -> tuple[str, list[int]]: 
@@ -57,14 +57,13 @@ def extraer_comando(linea:str) -> tuple[str, list[int]]:
 
     if not m:
         # Formato incorrecto: comando desconocido, paréntesis mal, basura al final, etc.
-        raise excepciones.ArgumentError
+        raise e.ArgumentError
 
     nombre = m.group(1)
     argstr = m.group(2)
-
-    # Si no hay argumentos entre paréntesis, NOP.
-    if argstr == "":
-        raise excepciones.ArgumentError()
+    VALID_ARG = re.compile(r"^[+-]?\d+(?:\s*,\s*[+-]?\d+)*\s*$") #Condición para no incluir letras y puntos en los args
+    if not bool(VALID_ARG.fullmatch(argstr)):
+        return e.ArgumentError
 
     # Extrae todos los enteros de una pasada (tolerante a espacios y signos + / -)
     args = [int(x) for x in INT_RE.findall(argstr)]
@@ -82,7 +81,7 @@ def interactive_loop():
             print(res)
         except ZeroDivisionError:
             print("NE: operación sin solución")
-        except excepciones.ArgumentError:
+        except e.ArgumentError:
             print("NOP: comando o argumentos inválidos")
         except Exception as e:
             print(f"NOP: {e}")
@@ -109,7 +108,7 @@ def run_commands(fin: TextIO = None, fout: TextIO = None) -> None:
             fout.write(str(res) + "\n")
         except ZeroDivisionError:
             fout.write("NE\n")
-        except excepciones.ArgumentError:
+        except e.ArgumentError:
             fout.write("NOP\n")
         except Exception:
             fout.write("NOP\n")  # error inesperado → también NOP
@@ -120,7 +119,7 @@ def primo(a: int) -> str:
         check_argument(a)
         return "Sí" if mod.es_primo(a) else "No"
 
-    except excepciones.ArgumentError:
+    except e.ArgumentError:
         return "NOP"
 
 def primos(a: int, b: int):
@@ -129,7 +128,7 @@ def primos(a: int, b: int):
         lista = mod.lista_primos(a, b)
         return "NE" if not lista else ", ".join(str(p) for p in lista)
 
-    except excepciones.ArgumentError: 
+    except e.ArgumentError: 
         return "NOP"
 
 def factorizar(n: int) -> str: #Hay que cambiarla
@@ -143,28 +142,28 @@ def factorizar(n: int) -> str: #Hay que cambiarla
         pares = [f"{p}: {e}" for p, e in sorted(factores.items())]
         return ", ".join(pares)
     
-    except excepciones.ArgumentError: 
+    except e.ArgumentError: 
         return "NOP"
 
 def mcd(lista: list) -> int:
     try:
         check_argument(*lista)
         return mod.mcd_n(lista) if len(lista) > 2 else mod.mcd(lista)
-    except excepciones.ArgumentError:
+    except e.ArgumentError:
         return "NOP"
 
 def coprimos(a: int, b: int) -> str:
     try:
         check_argument(a, b)
         return "Sí" if mod.coprimos(a, b) else "No"
-    except excepciones.ArgumentError:
+    except e.ArgumentError:
         return "NOP"
 
 def pow(base: int, exp: int, p: int) -> int:
     try:
         check_argument(base, exp, p)
         return mod.potencia_mod_p(base, exp, p)
-    except excepciones.ArgumentError:
+    except e.ArgumentError:
         return "NOP"
     except ZeroDivisionError:
         return "NE"
