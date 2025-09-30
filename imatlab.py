@@ -17,11 +17,12 @@ lanzar´a la interfaz de usuario para el modo interactivo.
 """
 
 import excepciones as e
+import regex as re
 
 
 
 # imatlab.py
-import modular as m
+import modular as mod
 from typing import TextIO
 
 def check_integers(lista: list) -> bool:
@@ -38,17 +39,24 @@ def check_positive(n: int):
         raise e.PositiveError
 
 def check_prime(n: int):
-    if not m.es_primo(n):
+    if not mod.es_primo(n):
         raise e.PrimeError
+
+def check_functions(function:str, argumentos:list, functions:dict):
+
+    if function not in functions.keys(): 
+        raise e.NOP ("Command not found")
+    return functions[function](*argumentos) 
+
 
 
 def run_commands(fin: TextIO, fout: TextIO) -> None:
-    # """
-    # Lee comandos desde fin (una expresión por línea), los evalúa y escribe el resultado en fout.
-    # Ejemplo de comando: primos(1,11)
-    # """
+    """
+    Lee comandos desde fin (una expresión por línea), los evalúa y escribe el resultado en fout.
+    Ejemplo de comando: primos(1,11)
+    """
     # Solo exponemos lo que queremos que se pueda ejecutar (por seguridad y claridad)
-    env = {
+    functions = {
         "primo": primo, 
         "primos": primos, 
         "factorizar": factorizar, 
@@ -58,26 +66,25 @@ def run_commands(fin: TextIO, fout: TextIO) -> None:
         "inv": inv, 
         "euler": euler, 
         "legendre": legendre
-        }
+    }
 
-    for raw in fin:
-        line = raw.strip()
-        if not line or line.startswith("#"):
-            continue
-        try:
-            # Evalúa la expresión (p. ej., "primos(1,11)") y captura su valor
-            result = eval(line, {"__builtins__": {}}, env)
-            if result is not None:
-                print(result, file=fout)   # añade '\n' automáticamente
-        except Exception as e:
-            print(f"ERR: {e}", file=fout)
+    regex = re.compile(r"(\w+)\((.*)\)")
+
+    for linea in fin: 
+        try: 
+            funcion_arg = regex.match(linea.strip())
+            str_argumentos = funcion_arg.group(2)
+            argumentos = [int(x.strip()) for x in str_argumentos.split(",")]
+            fout.write(check_functions(funcion_arg.group(1), argumentos, functions) + "\n")
+        except Exception as error: 
+            fout.write(f"Error: {error}\n")
     
 
 def primo(a: int) -> str: 
 
     try:
         check_integers([a])
-        return "Sí" if m.es_primo(a) else "No"
+        return "Sí" if mod.es_primo(a) else "No"
 
     except TypeError:
         print("Entrada inválida: primo() recibe un entero")
@@ -86,7 +93,7 @@ def primo(a: int) -> str:
 def primos(a: int, b: int):
     try: 
         check_integers([a, b])
-        lista = m.lista_primos(a, b)
+        lista = mod.lista_primos(a, b)
         return "NE" if not lista else ", ".join(str(p) for p in lista)
 
     except TypeError: 
@@ -99,7 +106,7 @@ def factorizar(n: int) -> str: #Hay que cambiarla
     try:
         if n == 0:
             return "0"
-        factores = m.factorizar(n)  # dict {p:e}
+        factores = mod.factorizar(n)  # dict {p:e}
         # Ordena por primo para que el string sea determinista
         pares = [f"{p}: {e}" for p, e in sorted(factores.items())]
         return ", ".join(pares)
@@ -110,14 +117,14 @@ def factorizar(n: int) -> str: #Hay que cambiarla
 def mcd(lista: list) -> int:
     try:
         check_integers(lista)
-        return m.mcd_n(lista)
+        return mod.mcd_n(lista) if len(lista) > 2 else mod.mcd(lista)
     except TypeError:
         return "Entrada inválida: las entradas deben ser números enteros"
 
 def coprimos(a: int, b: int) -> str:
     try:
         check_integers([a, b])
-        return "Sí" if m.coprimos(a, b) else "No"
+        return "Sí" if mod.coprimos(a, b) else "No"
     except TypeError:
         return "Entrada inválida: las entradas deben ser números enteros"
 
@@ -125,7 +132,7 @@ def pow(base: int, exp: int, p: int) -> int:
     try:
         check_integers([base, exp, p])
         check_mod(p)
-        return m.potencia_mod_p(base, exp, p)
+        return mod.potencia_mod_p(base, exp, p)
     except TypeError:
         return "Entrada inválida: las entradas deben ser números enteros"
     except (ZeroDivisionError, e.ModError):
@@ -135,7 +142,7 @@ def inv(n: int, p: int) -> int:
     try:
         check_integers([n, p])
         check_mod(p)
-        return m.inversa_mod_p(n, p)
+        return mod.inversa_mod_p(n, p)
     except TypeError:
         return "Entrada inválida: las entradas deben ser números enteros"
     except (ZeroDivisionError, e.ModError):
@@ -145,7 +152,7 @@ def euler(n: int) -> int:
     try:
         check_integers([n])
         check_positive(n)
-        return m.euler(n)
+        return mod.euler(n)
     except TypeError:
         return f"Entrada inválida: {n} tiene que ser entero"
     except e.PositiveError:
@@ -158,7 +165,7 @@ def legendre(n: int, p: int):
         check_integers([n, p])
         check_positive(n)
         check_prime(p)
-        return m.legendre(n, p)
+        return mod.legendre(n, p)
     except TypeError:
         return "Entrada inválida: las entradas deben ser enteros"
     except (ZeroDivisionError, e.ModError): 

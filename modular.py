@@ -186,7 +186,7 @@ def bezout(a:int, b:int) -> Tuple[int,int,int]:
         bezout(6,10)=(2,2,-1)
     """
     if b == 0:
-        return a, 1, 0  # gcd, x, y
+        return a, 1, 0  
     else:
         d, x1, y1 = bezout(b, a % b)
         x = y1
@@ -464,7 +464,7 @@ def raiz_mod_p(n:int,p:int)->int:
         raiz_mod_p(2,7)=3
     """
     #Opcional
-    pass
+    #sabemos que 
 
 
 def ecuacion_cuadratica(a:int,b:int,c:int,p:int)->Tuple[int,int]:
@@ -494,4 +494,4 @@ def ecuacion_cuadratica(a:int,b:int,c:int,p:int)->Tuple[int,int]:
 
 
 if __name__ == "__main__":
-    print(inversa_mod_p(2,7))
+    print(mcd(1,20))

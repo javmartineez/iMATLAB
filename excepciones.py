@@ -1,14 +1,5 @@
-class UnorderedValues(Exception):
+class NE(Exception): 
     pass
 
-class NullError(Exception):
-    pass
-
-class ModError(Exception):
-    pass
-
-class PositiveError(Exception):
-    pass
-
-class PrimeError(Exception):
+class NOP(Exception):
     pass
