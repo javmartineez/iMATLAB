@@ -422,7 +422,7 @@ def legendre(n:int,p:int)->int:
     return 1 if r == 1 else -1    # (p-1) ≡ -1 (mod p)
 
 
-def resolver_sistema_congruencias(a:List[int], b:List[int], p:List[int])->Tuple[int,int]:
+def resolver_sistema_congruencias(alist:List[int], blist:List[int], plist:List[int])->Tuple[int,int]:
     """ Dadas tres listas de números enteros [a_1,...,a_n], [b_1,...,b_n] y [p_1,...,p_n], resuelve el sistema de congruencias
     
     a_i * x = b_i (mod p_i)   i=1,...,n
