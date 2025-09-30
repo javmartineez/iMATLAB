@@ -33,7 +33,7 @@ def check_function(function:str, argumentos:list):
         raise e.ArgumentError ("Command not found")
     return FUNCTIONS[function](*argumentos) 
 
-def check_argument(*args: int):
+def check_argument(args: list):
     """
     Comprueba que todos los argumentos sean enteros y no vacíos.
     """
@@ -230,5 +230,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
-
+    #main()
+    interactive_loop()
