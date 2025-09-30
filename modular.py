@@ -444,8 +444,32 @@ def resolver_sistema_congruencias(alist:List[int],blist:List[int],plist:List[int
         resolverSistema([2;4;6])=(2,3)
         resolverSistema([1;1;3],[4;7;11])=(10,33)        
     """
-    pass
-
+    if not (len(alist) == len(blist) == len(plist)):
+        raise ValueError("Las listas a, b y p deben tener la misma longitud")
+    # 1. Calcular el producto total de los módulos
+    M = 1
+    for pi in plist:
+        M *= pi
+    x_total = 0  # acumulador para la solución
+    for ai, bi, pi in zip(alist, blist, plist):
+        # 2. Inversa modular de ai (si gcd(ai, pi)=1)
+        g, inv_ai, _ = bezout(ai, pi)
+        if bi % g != 0:
+            # Si gcd(ai, pi) no divide a bi, no hay solución
+            raise ValueError(f"No existe solución para la congruencia {ai}*x ≡ {bi} (mod {pi})")
+        if g != 1:
+            # Si ai y pi no son coprimos, la solución no sería única modulo pi
+            raise ValueError(f"{ai} no es coprimo con {pi}, no se puede obtener una inversa única")
+        inv_ai %= pi  # asegurar inversa positiva mod pi
+        # 3. Encontrar la solución particular x ≡ c_i (mod p_i)
+        ci = (bi * inv_ai) % pi
+        # 4. Combinar con la solución total usando el CRT
+        Ni = M // pi                  # producto de todos los módulos excepto p_i
+        _, inv_Ni, _ = bezout(Ni, pi)  # inversa de Ni mod p_i
+        inv_Ni %= pi
+        x_total += ci * Ni * inv_Ni    # sumar contribución modulo M
+    r = x_total % M  # solución mínima no negativa
+    return r, M
 
 def raiz_mod_p(n:int,p:int)->int:
     """ Encuentra, si existe, una raíz cuadrada para un entero n módulo un número primo p.
