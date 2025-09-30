@@ -15,6 +15,7 @@ Librería para la realización de cálculos y resolución de problemas de aritm�
 
 from typing import Tuple, List, Dict
 import math
+import excepciones as e
 
 class IncompatibleEquationError(Exception):
     pass
@@ -37,18 +38,21 @@ def es_primo(n:int)->bool: #Editado
         es_primo(4)=False
         
     """
-    if n == 2:
-        return True
-    
-    elif n < 2 or n % 2 == 0:
+    if n < 2:
         return False
-    
-    else:
-        for i in range(3, math.isqrt(n) + 1, 2):
-            if n % i == 0:
-                return False
-            
+    if n in {2, 3}:
         return True
+    if n % 2 == 0 or n % 3 == 0:
+        return False
+
+    limite = math.isqrt(n)
+    i = 5
+    while i <= limite:
+        if n % i == 0 or n % (i + 2) == 0:
+            return False
+        i += 6
+    return True
+
 
 def lista_primos(a,b)-> List[int]: #Editada
     """ Recibe dos enteros a y b y devuelva la lista de números primos en el intervalo [a, b)
@@ -134,9 +138,6 @@ def factorizar(n:int)->Dict[int,int]: #Editada
         divisores[n] = divisores.get(n, 0) + 1
     return divisores
 
-
-
-            
 
 
 def mcd(a:int,b:int)->int:
@@ -277,9 +278,11 @@ def potencia_mod_p(base:int, exp:int, p:int) -> int:
     """
     
     if p == 0:
-        raise ZeroDivisionError("El módulo no puede ser 0")
+        raise NE()
     if base == 0 and exp == 0:
-        raise ZeroDivisionError("0^0 es indeterminado")
+        raise NE()
+    if type(base or exp or p) != int: 
+        raise NOP()
 
     p = abs(p)           # trabajamos con módulo positivo
 
@@ -330,15 +333,15 @@ def inversa_mod_p(n:int,p:int)->int:
     """
 
     if p == 0:
-        raise ZeroDivisionError("El módulo no puede ser 0")
+        raise NE("El módulo no puede ser 0")
     # Si n y p no son coprimos, no existe inversa
     if not coprimos(n, p):
-        raise ZeroDivisionError(f"{n} no tiene inversa módulo {p} porque no son coprimos.")
+        raise NE()
 
     # Bezout: d = mcd(n,p) y n*x + p*y = d
     d, x, _ = bezout(n, p)
 
-    # Normalizamos a [0, p-1]
+    # Normalizamos a [0, p-1]   
     return x % p
 
 
@@ -419,7 +422,7 @@ def legendre(n:int,p:int)->int:
     return 1 if r == 1 else -1    # (p-1) ≡ -1 (mod p)
 
 
-def resolver_sistema_congruencias(alist:List[int],blist:List[int],plist:List[int])->Tuple[int,int]:
+def resolver_sistema_congruencias(a:List[int], b:List[int], p:List[int])->Tuple[int,int]:
     """ Dadas tres listas de números enteros [a_1,...,a_n], [b_1,...,b_n] y [p_1,...,p_n], resuelve el sistema de congruencias
     
     a_i * x = b_i (mod p_i)   i=1,...,n

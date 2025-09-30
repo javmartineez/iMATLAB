@@ -1,5 +1,3 @@
-class NE(Exception): 
+class ArgumentError(Exception): 
     pass
 
-class NOP(Exception):
-    pass
