@@ -16,7 +16,7 @@ Interfaz de acceso interactivo o por lotes a la librería modular.py. Si este sc
 lanzar´a la interfaz de usuario para el modo interactivo.
 """
 
-import excepciones as e
+import excepciones as exc
 import re
 import sys
 import argparse
@@ -42,16 +42,15 @@ N_ARGS = {
     "legendre": (2, 2),
 }
 
-<<<<<<< HEAD
 def check_function(function: str, argumentos: list):
     if function not in FUNCTIONS:
-        raise excepciones.ArgumentError()
+        raise exc.ArgumentError()
 
     # valida nº de argumentos (antes de llamar)
     min_a, max_a = N_ARGS.get(function, (0, None))
     n = len(argumentos)
     if n < min_a or (max_a is not None and n > max_a):
-        raise excepciones.ArgumentError
+        raise exc.ArgumentError
 
     fn = FUNCTIONS[function]
 
@@ -59,11 +58,6 @@ def check_function(function: str, argumentos: list):
         return fn(argumentos)          # mcd(lista)
     else:
         return fn(*argumentos)         # primo(a), primos(a,b), etc.
-=======
-    if function not in FUNCTIONS: 
-        raise e.ArgumentError ("Command not found")
-    return FUNCTIONS[function](*argumentos) 
->>>>>>> d6a09019fffb1af8f3a61f22f2a0bfa915c74368
 
 def check_argument(args: list):
     """
@@ -71,7 +65,7 @@ def check_argument(args: list):
     """
     for a in args:
         if type(a) is not int:
-            raise e.ArgumentError
+            raise exc.ArgumentError
 
 def extraer_comando(linea:str) -> tuple[str, list[int]]: 
     """
@@ -88,13 +82,13 @@ def extraer_comando(linea:str) -> tuple[str, list[int]]:
 
     if not m:
         # Formato incorrecto: comando desconocido, paréntesis mal, basura al final, etc.
-        raise e.ArgumentError
+        raise exc.ArgumentError
 
     nombre = m.group(1)
     argstr = m.group(2)
     VALID_ARG = re.compile(r"^[+-]?\d+(?:\s*,\s*[+-]?\d+)*\s*$") #Condición para no incluir letras y puntos en los args
     if not bool(VALID_ARG.fullmatch(argstr)):
-        return e.ArgumentError
+        return exc.ArgumentError
 
     # Extrae todos los enteros de una pasada (tolerante a espacios y signos + / -)
     args = [int(x) for x in INT_RE.findall(argstr)]
@@ -112,7 +106,7 @@ def interactive_loop():
             print(res)
         except ZeroDivisionError:
             print("NE: operación sin solución")
-        except e.ArgumentError:
+        except exc.ArgumentError:
             print("NOP: comando o argumentos inválidos")
         except Exception as e:
             print(f"NOP: {e}")
@@ -139,88 +133,45 @@ def run_commands(fin: TextIO = None, fout: TextIO = None) -> None:
             fout.write(str(res) + "\n")
         except ZeroDivisionError:
             fout.write("NE\n")
-        except e.ArgumentError:
+        except exc.ArgumentError:
             fout.write("NOP\n")
         except Exception:
             fout.write("NOP\n")  # error inesperado → también NOP
 
 def primo(a: int) -> str: 
-
-    try:
-        check_argument(a)
-        return "Sí" if mod.es_primo(a) else "No"
-
-    except e.ArgumentError:
-        return "NOP"
+    return "Sí" if mod.es_primo(a) else "No"
 
 def primos(a: int, b: int):
-    try: 
-        check_argument(a,b)
-        lista = mod.lista_primos(a, b)
-        return "NE" if not lista else ", ".join(str(p) for p in lista)
-
-    except e.ArgumentError: 
-        return "NOP"
+    lista = mod.lista_primos(a, b)
+    return "NE" if not lista else ", ".join(str(p) for p in lista)
 
 def factorizar(n: int) -> str: #Hay que cambiarla
     """Devuelve la factorización de n en formato 'p1:e1, p2:e2,...'."""
-    try:
-        check_argument(n)
-        if n == 0:
-            return "0"
-        factores = mod.factorizar(n)  # dict {p:e}
-        # Ordena por primo para que el string sea determinista
-        pares = [f"{p}: {e}" for p, e in sorted(factores.items())]
-        return ", ".join(pares)
+    if n == 0:
+        return "0"
+    factores = mod.factorizar(n)  # dict {p:e}
+    # Ordena por primo para que el string sea determinista
+    pares = [f"{p}: {e}" for p, e in sorted(factores.items())]
+    return ", ".join(pares)
     
-    except e.ArgumentError: 
-        return "NOP"
-
 def mcd(lista: list) -> int:
-    try:
-        check_argument(*lista)
-        return mod.mcd_n(lista) if len(lista) > 2 else mod.mcd(lista)
-    except e.ArgumentError:
-        return "NOP"
+    return mod.mcd_n(lista) if len(lista) > 2 else mod.mcd(lista)
 
 def coprimos(a: int, b: int) -> str:
-    try:
-        check_argument(a, b)
-        return "Sí" if mod.coprimos(a, b) else "No"
-    except e.ArgumentError:
-        return "NOP"
+    return "Sí" if mod.coprimos(a, b) else "No"
 
 def pow(base: int, exp: int, p: int) -> int:
-    try:
-        check_argument(base, exp, p)
-        return mod.potencia_mod_p(base, exp, p)
-    except e.ArgumentError:
-        return "NOP"
-    except ZeroDivisionError:
-        return "NE"
+    return mod.potencia_mod_p(base, exp, p)
 
 def inv(n: int, p: int) -> int:
-    try:
-        return mod.inversa_mod_p(n, p)
-    except excepciones.ArgumentError:
-        return "NOP"
-    except ZeroDivisionError:
-        return "NE"
+    return mod.inversa_mod_p(n, p)
 
 def euler(n: int) -> int:
-    try:
-        return mod.euler(n)
-    except excepciones.ArgumentError:
-        return "NOP"
-
+    return mod.euler(n)
 
 def legendre(n: int, p: int):
-    try:
-        return mod.legendre(n, p)
-    except TypeError:
-        return "Entrada inválida: las entradas deben ser enteros"
-    except ZeroDivisionError: 
-        return "NE"
+    return mod.legendre(n, p)
+
 
 FUNCTIONS = {
             "primo": primo,
@@ -233,6 +184,7 @@ FUNCTIONS = {
             "euler": euler,
             "legendre": legendre,
             }  
+
 
 def main():
     parser = argparse.ArgumentParser()
