@@ -26,15 +26,13 @@ from typing import TextIO
 CMD_RE = re.compile(r'\s*([A-Za-z_]\w*)\s*\(\s*(.*?)\s*\)\s*$') #expresion regular para identificar el comando 
 INT_RE = re.compile(r'[+-]?\d+') #expresion regular para identificar los numeros
 
-
-# comandos que reciben UNA lista y no varios argumentos por separado
-ARG_LIST = {"mcd"}        
+    
 # Diccionario con el minimo y maximo de argumentos que puede admitir cada funcion
 N_ARGS = {
     "primo": (1, 1),
     "primos": (2, 2),
     "factorizar": (1, 1),
-    "mcd": (2, None),  
+    "mcd": (1, None),  
     "coprimos": (2, 2),
     "pow": (3, 3),
     "inv": (2, 2),
@@ -53,12 +51,8 @@ def check_function(function: str, argumentos: list):
         raise exc.ArgumentError
 
     fn = FUNCTIONS[function]
-
-    if function in ARG_LIST:
-        return fn(argumentos)          # mcd(lista)
-    else:
-        return fn(*argumentos)         # primo(a), primos(a,b), etc.
-
+    return fn(*argumentos)  
+ 
 def check_argument(args: list):
     """
     Comprueba que todos los argumentos sean enteros y no vacíos.
@@ -88,7 +82,7 @@ def extraer_comando(linea:str) -> tuple[str, list[int]]:
     argstr = m.group(2)
     VALID_ARG = re.compile(r"^[+-]?\d+(?:\s*,\s*[+-]?\d+)*\s*$") #Condición para no incluir letras y puntos en los args
     if not bool(VALID_ARG.fullmatch(argstr)):
-        return exc.ArgumentError
+        raise exc.ArgumentError
 
     # Extrae todos los enteros de una pasada (tolerante a espacios y signos + / -)
     args = [int(x) for x in INT_RE.findall(argstr)]
@@ -101,7 +95,7 @@ def interactive_loop():
             break
         try:
             comando, args = extraer_comando(linea)
-            check_argument(*args)
+            check_argument(args)
             res = check_function(comando, args)
             print(res)
         except ZeroDivisionError:
@@ -152,10 +146,21 @@ def factorizar(n: int) -> str: #Hay que cambiarla
     factores = mod.factorizar(n)  # dict {p:e}
     # Ordena por primo para que el string sea determinista
     pares = [f"{p}: {e}" for p, e in sorted(factores.items())]
-    return ", ".join(pares)
-    
-def mcd(lista: list) -> int:
-    return mod.mcd_n(lista) if len(lista) > 2 else mod.mcd(lista)
+    return ", ".join(pares)   
+
+def mcd(*nums: int) -> int:
+
+    if len(nums) == 0:
+        raise exc.ArgumentError()
+
+    elif len(nums) == 1: 
+        return abs(nums[0])
+
+    elif len(nums) == 2:
+        a, b = nums
+        return mod.mcd(a, b)
+    else:
+        return mod.mcd_n(list(nums))  # delega en la versión que acepta lista
 
 def coprimos(a: int, b: int) -> str:
     return "Sí" if mod.coprimos(a, b) else "No"
@@ -172,7 +177,6 @@ def euler(n: int) -> int:
 def legendre(n: int, p: int):
     return mod.legendre(n, p)
 
-
 FUNCTIONS = {
             "primo": primo,
             "primos": primos,
@@ -184,7 +188,6 @@ FUNCTIONS = {
             "euler": euler,
             "legendre": legendre,
             }  
-
 
 def main():
     parser = argparse.ArgumentParser()
@@ -210,5 +213,6 @@ def main():
 
 
 if __name__ == "__main__":
-    #main()
-    interactive_loop()
+    main()
+    #interactive_loop()
+    #print(mcd(1,20))

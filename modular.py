@@ -105,38 +105,48 @@ def factorizar(n:int)->Dict[int,int]: #Editada
         factorizar(12)={2: 2, 3: 1}
         factorizar(0)={}
     """
-
-    #Idea: encontramos la lista de primos entre 0 y la raiz entera del numero a factorizar
-    #Comprobamos si cada uno de esos primos es divisor, contando cuantas veces lo es
-    #En caso de serlo, añadimos el numero y el valor del contador al diccionario 
-
     if n in {0, 1, -1}:
-        return n
-    # if es_primo(n): Creo que esta línea puede mejorar el código ya que si es primo nos ahorramos calcular todo, pero no se si sale rentable, esto lo comprobamos testeando
-    #     return {}
+        return {}
 
     n = abs(n)
-    divisores: Dict[int, int] = {}
 
-    # Solo necesitamos primos hasta sqrt(n)
-    limite = math.isqrt(n) + 1
-    primos = lista_primos(2, limite + 1) 
+    if es_primo(n):
+        return {n: 1}
 
-    for p in primos:
-        if p * p > n:
-            if n > 1:
-                divisores[n] = divisores.get(n, 0) + 1
-            return divisores
-        if n % p == 0:
-            e = 0
-            while n % p == 0:
-                n //= p; e += 1
-            divisores[p] = e
+    fac: dict[int, int] = {}
 
-    # Si el bucle termina sin que p*p > n (p.ej. lista corta), remata:
+    # 2
+    e = 0
+    while (n & 1) == 0:
+        n >>= 1; e += 1
+    if e: fac[2] = e
+
+    # 3
+    e = 0
+    while n % 3 == 0:
+        n //= 3; e += 1
+    if e: fac[3] = e
+
+    # 6k ± 1
+    i = 5
+    while i * i <= n:
+        e = 0
+        while n % i == 0:
+            n //= i; e += 1
+        if e: fac[i] = e
+
+        j = i + 2
+        e = 0
+        while n % j == 0:
+            n //= j; e += 1
+        if e: fac[j] = e
+
+        i += 6
+
     if n > 1:
-        divisores[n] = divisores.get(n, 0) + 1
-    return divisores
+        fac[n] = fac.get(n, 0) + 1
+
+    return fac
 
 
 
@@ -236,7 +246,24 @@ def bezout_n(nlist:List[int])->Tuple[int,List[int]]:
     Examples
         bezout_n([4,10,14])=(2,[-2,1,0])
     """
-    pass
+    if not nlist:
+        return 0, []
+    if len(nlist) == 1:
+        return abs(nlist[0]), [1 if nlist[0] >= 0 else -1]
+
+    # Empezamos con los dos primeros
+    d, x, y = bezout(nlist[0], nlist[1])
+    coefs = [x, y]
+
+    # Vamos incorporando uno a uno
+    for i in range(2, len(nlist)):
+        a = nlist[i]
+        d2, u, v = bezout(d, a)
+        coefs = [c * u for c in coefs]
+        coefs.append(v)
+        d = d2
+
+    return d, coefs
 
 
 def coprimos(n:int,m:int)->bool:
