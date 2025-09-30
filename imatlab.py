@@ -27,11 +27,37 @@ CMD_RE = re.compile(r'\s*([A-Za-z_]\w*)\s*\(\s*(.*?)\s*\)\s*$') #expresion regul
 INT_RE = re.compile(r'[+-]?\d+') #expresion regular para identificar los numeros
 
 
-def check_function(function:str, argumentos:list):
+# comandos que reciben UNA lista y no varios argumentos por separado
+ARG_LIST = {"mcd"}        
+# Diccionario con el minimo y maximo de argumentos que puede admitir cada funcion
+N_ARGS = {
+    "primo": (1, 1),
+    "primos": (2, 2),
+    "factorizar": (1, 1),
+    "mcd": (2, None),  
+    "coprimos": (2, 2),
+    "pow": (3, 3),
+    "inv": (2, 2),
+    "euler": (1, 1),
+    "legendre": (2, 2),
+}
 
-    if function not in FUNCTIONS: 
-        raise excepciones.ArgumentError ("Command not found")
-    return FUNCTIONS[function](*argumentos) 
+def check_function(function: str, argumentos: list):
+    if function not in FUNCTIONS:
+        raise excepciones.ArgumentError()
+
+    # valida nº de argumentos (antes de llamar)
+    min_a, max_a = N_ARGS.get(function, (0, None))
+    n = len(argumentos)
+    if n < min_a or (max_a is not None and n > max_a):
+        raise excepciones.ArgumentError
+
+    fn = FUNCTIONS[function]
+
+    if function in ARG_LIST:
+        return fn(argumentos)          # mcd(lista)
+    else:
+        return fn(*argumentos)         # primo(a), primos(a,b), etc.
 
 def check_argument(*args: int):
     """
@@ -40,7 +66,6 @@ def check_argument(*args: int):
     for a in args:
         if type(a) is not int:
             raise excepciones.ArgumentError
-
 
 def extraer_comando(linea:str) -> tuple[str, list[int]]: 
     """
@@ -77,7 +102,7 @@ def interactive_loop():
             break
         try:
             comando, args = extraer_comando(linea)
-            check_argument(args)
+            check_argument(*args)
             res = check_function(comando, args)
             print(res)
         except ZeroDivisionError:
@@ -172,27 +197,24 @@ def pow(base: int, exp: int, p: int) -> int:
 def inv(n: int, p: int) -> int:
     try:
         return mod.inversa_mod_p(n, p)
-    except TypeError:
-        return "Entrada inválida: las entradas deben ser números enteros"
-    except (ZeroDivisionError):
+    except excepciones.ArgumentError:
+        return "NOP"
+    except ZeroDivisionError:
         return "NE"
 
 def euler(n: int) -> int:
     try:
         return mod.euler(n)
-    except TypeError:
-        return f"Entrada inválida: {n} tiene que ser entero"
-    # except e.PositiveError:
-    #     return f"Entrada inválida: {n} tiene que ser positivo"
-    except ValueError as error: 
-        return error
+    except excepciones.ArgumentError:
+        return "NOP"
+
 
 def legendre(n: int, p: int):
     try:
         return mod.legendre(n, p)
     except TypeError:
         return "Entrada inválida: las entradas deben ser enteros"
-    except (ZeroDivisionError, e.ModError): 
+    except ZeroDivisionError: 
         return "NE"
 
 FUNCTIONS = {

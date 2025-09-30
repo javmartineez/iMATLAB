@@ -111,7 +111,7 @@ def factorizar(n:int)->Dict[int,int]: #Editada
     #En caso de serlo, añadimos el numero y el valor del contador al diccionario 
 
     if n in {0, 1, -1}:
-        return {}
+        return n
     # if es_primo(n): Creo que esta línea puede mejorar el código ya que si es primo nos ahorramos calcular todo, pero no se si sale rentable, esto lo comprobamos testeando
     #     return {}
 
@@ -278,11 +278,11 @@ def potencia_mod_p(base:int, exp:int, p:int) -> int:
     """
     
     if p == 0:
-        raise NE()
+        raise ZeroDivisionError
     if base == 0 and exp == 0:
-        raise NE()
+        raise ZeroDivisionError
     if type(base or exp or p) != int: 
-        raise NOP()
+        raise e.ArgumentError
 
     p = abs(p)           # trabajamos con módulo positivo
 
@@ -333,10 +333,10 @@ def inversa_mod_p(n:int,p:int)->int:
     """
 
     if p == 0:
-        raise NE("El módulo no puede ser 0")
+        raise ZeroDivisionError
     # Si n y p no son coprimos, no existe inversa
     if not coprimos(n, p):
-        raise NE()
+        raise ZeroDivisionError 
 
     # Bezout: d = mcd(n,p) y n*x + p*y = d
     d, x, _ = bezout(n, p)
@@ -406,10 +406,11 @@ def legendre(n:int,p:int)->int:
         legendre(2,7)=1
         legendre(10,5)=0
     """
-    if p == 0: 
-        raise ZeroDivisionError (f"El módulo no puede ser 0")
-    elif not es_primo(p): 
-        raise ZeroDivisionError (f"EL módulo debe ser un número primo")
+    if p in {0,2}: #el módulo no puede ser 0 ni un primo par 
+        raise ZeroDivisionError
+    if not es_primo(p): 
+        raise ZeroDivisionError
+ 
     
     # Normalizar n al rango [0, p-1]
     n %= p
