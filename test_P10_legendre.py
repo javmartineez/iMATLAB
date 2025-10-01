@@ -6,7 +6,7 @@ from test_imatlab import try_command
     (2,5,-1),
     (2,7,1),
     (10,5,0),
-    #COMPLETAR    
+    (4,7,1)    
 ])
 def test_legendre_basico(n: int, p:int, salida_esperada: int) -> None:
     assert(modular.legendre(n,p)==salida_esperada)
@@ -17,14 +17,14 @@ def test_legendre_cero():
     realmente se lanza la excepción esperada"""
     with pytest.raises(ZeroDivisionError):
         modular.legendre(2,0)
-    #COMPLETAR con un caso en que n no sea invertible mod p
+        modular.legendre(4,6)
 
 @pytest.mark.parametrize("n,p,salida_esperada",[    
     (2,5,"-1"),
     (2,7,"1"),
     (10,5,"0"),
     (2,0,"NE"),
-    #COMPLETAR 
+    (4,6,"NE")
 ])
 def test_inversa_imatlab(n: int, p:int, salida_esperada: str) -> None:
     try_command(f"legendre({n},{p})",salida_esperada)

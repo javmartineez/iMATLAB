@@ -13,7 +13,7 @@ def test_mcd_basico(a: int, b:int, salida_esperada: int) -> None:
 
 @pytest.mark.parametrize("a,b,mcd_esperado",[
     (6,10,2),
-    #COMPLETAR    
+    (13,26,13)    
 ])
 def test_bezout_basico(a: int, b:int, mcd_esperado: int) -> None:
     (d,x,y)=modular.bezout(a,b)
@@ -30,7 +30,7 @@ def test_mcd_n_basico(nlist: List[int], salida_esperada: int) -> None:
 
 @pytest.mark.parametrize("nlist,mcd_esperado",[
     ([4,10,14],2),
-    #COMPLETAR    
+    ([1,20,30], 1)   
 ])
 def test_bezout_n_basico(nlist: List[int], mcd_esperado: int) -> None:
     (d,X)=modular.bezout_n(nlist)
