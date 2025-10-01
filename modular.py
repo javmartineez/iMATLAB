@@ -38,20 +38,18 @@ def es_primo(n:int)->bool: #Editado
         es_primo(4)=False
         
     """
-    if n < 2:
-        return False
-    if n in {2, 3}:
+    if n == 2:
         return True
-    if n % 2 == 0 or n % 3 == 0:
+
+    elif n < 2 or n % 2 == 0:
         return False
 
-    limite = math.isqrt(n)
-    i = 5
-    while i <= limite:
-        if n % i == 0 or n % (i + 2) == 0:
-            return False
-        i += 6
-    return True
+    else:
+        for i in range(3, math.isqrt(n) + 1, 2):
+            if n % i == 0:
+                return False
+
+        return True
 
 
 def lista_primos(a,b)-> List[int]: #Editada
