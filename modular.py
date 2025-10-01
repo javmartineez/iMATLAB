@@ -328,7 +328,7 @@ def potencia_mod_p(base:int, exp:int, p:int) -> int:
         if base == 0:
             raise ZeroDivisionError("0 no tiene inversa módulo p; exponente negativo no permitido")
         if not coprimos(base, p):
-            raise ZeroDivisionError(f"{base} no es invertible módulo {p}; exponente negativo no permitido")
+            raise IncompatibleEquationError(f"{base} no es invertible módulo {p}; exponente negativo no permitido")
         base = inversa_mod_p(base, p)
         exp = -exp
 
@@ -363,7 +363,7 @@ def inversa_mod_p(n:int,p:int)->int:
         raise ZeroDivisionError
     # Si n y p no son coprimos, no existe inversa
     if not coprimos(n, p):
-        raise ZeroDivisionError 
+        raise IncompatibleEquationError("inv(n,p) recibe dos enteros coprimos entre sí")
 
     # Bezout: d = mcd(n,p) y n*x + p*y = d
     d, x, _ = bezout(n, p)
@@ -390,7 +390,7 @@ def euler(n:int)->int:
     """
 
     if n < 1:
-        raise ValueError("φ(n) está definida para n >= 1")
+        raise IncompatibleEquationError("φ(n) está definida para n >= 1")
     if n == 1:
         return 1
     if es_primo(n):
@@ -436,7 +436,7 @@ def legendre(n:int,p:int)->int:
     if p in {0,2}: #el módulo no puede ser 0 ni un primo par 
         raise ZeroDivisionError
     if not es_primo(p): 
-        raise ZeroDivisionError
+        raise IncompatibleEquationError("El módulo escogido no es primo")
  
     
     # Normalizar n al rango [0, p-1]
@@ -477,10 +477,12 @@ def resolver_sistema_congruencias(alist:List[int], blist:List[int], plist:List[i
     """
     if not (len(alist) == len(blist) == len(plist)):
         raise ValueError("Las listas a, b y p deben tener la misma longitud")
+    
     # 1. Calcular el producto total de los módulos
     M = 1
     for pi in plist:
         M *= pi
+
     x_total = 0  # acumulador para la solución
     for ai, bi, pi in zip(alist, blist, plist):
         # 2. Inversa modular de ai (si gcd(ai, pi)=1)

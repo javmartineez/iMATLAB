@@ -98,8 +98,8 @@ def interactive_loop():
             check_argument(args)
             res = check_function(comando, args)
             print(res)
-        except ZeroDivisionError:
-            print("NE: operación sin solución")
+        except (ZeroDivisionError, mod.IncompatibleEquationError) as e:
+            print(f"NE: {e}")
         except exc.ArgumentError:
             print("NOP: comando o argumentos inválidos")
         except Exception as e:
@@ -125,7 +125,7 @@ def run_commands(fin: TextIO = None, fout: TextIO = None) -> None:
             comando, args = extraer_comando(s)
             res = check_function(comando, args)
             fout.write(str(res) + "\n")
-        except ZeroDivisionError:
+        except (ZeroDivisionError, mod.IncompatibleEquationError):
             fout.write("NE\n")
         except exc.ArgumentError:
             fout.write("NOP\n")
@@ -189,15 +189,15 @@ FUNCTIONS = {
             "legendre": legendre,
             }  
 
-def main():
+def main(argv=None):
     parser = argparse.ArgumentParser()
-    parser.add_argument("-i", "--input",  type=argparse.FileType("r"), default=None)
-    parser.add_argument("-o", "--output", type=argparse.FileType("w"), default=None)
+    parser.add_argument("-i", "--input",  type=argparse.FileType("r", encoding="utf-8"), default=None)
+    parser.add_argument("-o", "--output", type=argparse.FileType("w", encoding="utf-8"), default=None)
     args = parser.parse_args()
 
     # por ahora, solo mostramos qué llegó
-    fin  = args.input  or sys.stdin
-    fout = args.output or sys.stdout
+    entrada  = args.input  or sys.stdin
+    salida = args.output or sys.stdout
 
     # decidimos modo de la forma más simple posible:
     # interactivo SOLO si no nos han pasado -i/-o y además stdin y stdout son TTY
@@ -208,7 +208,7 @@ def main():
         print("Entrando en modo interactivo... (Presiona ENTER sin argumentos para salir) \n")
         interactive_loop()
     else:
-        run_commands()
+        run_commands(fin=entrada, fout=salida)
 
 
 
