@@ -141,8 +141,8 @@ def primos(a: int, b: int):
 
 def factorizar(n: int) -> str: #Hay que cambiarla
     """Devuelve la factorización de n en formato 'p1:e1, p2:e2,...'."""
-    if n == 0:
-        return "0"
+    if n in {-1, 0, 1}:
+        return n
     factores = mod.factorizar(n)  # dict {p:e}
     # Ordena por primo para que el string sea determinista
     pares = [f"{p}: {e}" for p, e in sorted(factores.items())]
