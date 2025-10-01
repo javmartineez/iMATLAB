@@ -4,7 +4,7 @@ modular.py
 Matemática Discreta - IMAT
 ICAI, Universidad Pontificia Comillas
 
-Grupo: GPxxx
+Grupo: GP09B
 Integrantes:
     - Javier Mochales López
     - Javier Martínez Berenguer 
@@ -15,9 +15,12 @@ Librería para la realización de cálculos y resolución de problemas de aritm�
 
 from typing import Tuple, List, Dict
 import math
-import excepciones as e
+
 
 class IncompatibleEquationError(Exception):
+    pass
+
+class ArgumentError(Exception):
     pass
 
 
@@ -307,7 +310,7 @@ def potencia_mod_p(base:int, exp:int, p:int) -> int:
     if base == 0 and exp == 0:
         raise ZeroDivisionError
     if type(base or exp or p) != int: 
-        raise e.ArgumentError
+        raise ArgumentError
 
     p = abs(p)           # trabajamos con módulo positivo
 
@@ -326,7 +329,7 @@ def potencia_mod_p(base:int, exp:int, p:int) -> int:
         if base == 0:
             raise ZeroDivisionError("0 no tiene inversa módulo p; exponente negativo no permitido")
         if not coprimos(base, p):
-            raise ZeroDivisionError(f"{base} no es invertible módulo {p}; exponente negativo no permitido")
+            raise IncompatibleEquationError(f"{base} no es invertible módulo {p}; exponente negativo no permitido")
         base = inversa_mod_p(base, p)
         exp = -exp
 
@@ -338,7 +341,6 @@ def potencia_mod_p(base:int, exp:int, p:int) -> int:
 
     
     
-
 
 def inversa_mod_p(n:int,p:int)->int:
     """ Calcula la inversa de un número n módulo p.
@@ -361,7 +363,7 @@ def inversa_mod_p(n:int,p:int)->int:
         raise ZeroDivisionError
     # Si n y p no son coprimos, no existe inversa
     if not coprimos(n, p):
-        raise ZeroDivisionError 
+        raise IncompatibleEquationError("inv(n,p) recibe dos enteros coprimos entre sí")
 
     # Bezout: d = mcd(n,p) y n*x + p*y = d
     d, x, _ = bezout(n, p)
@@ -388,7 +390,7 @@ def euler(n:int)->int:
     """
 
     if n < 1:
-        raise ValueError("φ(n) está definida para n >= 1")
+        raise IncompatibleEquationError("φ(n) está definida para n >= 1")
     if n == 1:
         return 1
     if es_primo(n):
@@ -434,7 +436,7 @@ def legendre(n:int,p:int)->int:
     if p in {0,2}: #el módulo no puede ser 0 ni un primo par 
         raise ZeroDivisionError
     if not es_primo(p): 
-        raise ZeroDivisionError
+        raise IncompatibleEquationError("El módulo escogido no es primo")
  
     
     # Normalizar n al rango [0, p-1]
@@ -475,10 +477,12 @@ def resolver_sistema_congruencias(alist:List[int], blist:List[int], plist:List[i
     """
     if not (len(alist) == len(blist) == len(plist)):
         raise ValueError("Las listas a, b y p deben tener la misma longitud")
+    
     # 1. Calcular el producto total de los módulos
     M = 1
     for pi in plist:
         M *= pi
+
     x_total = 0  # acumulador para la solución
     for ai, bi, pi in zip(alist, blist, plist):
         # 2. Inversa modular de ai (si gcd(ai, pi)=1)
@@ -516,8 +520,49 @@ def raiz_mod_p(n:int,p:int)->int:
     Examples:
         raiz_mod_p(2,7)=3
     """
-    #Opcional
-    #sabemos que 
+    # Caso trivial: si n es 0 mod p, la raíz es 0
+    if n % p == 0:
+        return 0
+    # Si p es 2 (primo trivial), devolver n mod 2
+    if p == 2:
+        return n % 2
+    # Comprobar existencia de solución (Euler)
+    if pow(n, (p - 1)//2, p) == p - 1:
+        raise IncompatibleEquationError(f"No existe raíz cuadrada de {n} módulo {p}")
+    # Factorizar p-1 = Q * 2^S con Q impar
+    Q = p - 1
+    S = 0
+    while Q % 2 == 0:
+        Q //= 2
+        S += 1
+    # Encontrar un no-residuo cuadrático z
+    z = 2
+    while pow(z, (p - 1)//2, p) != p - 1:
+        z += 1
+    # Inicializar valores para Tonelli-Shanks
+    M = S
+    c = pow(z, Q, p)
+    t = pow(n, Q, p)
+    R = pow(n, (Q + 1)//2, p)
+    # Iterar hasta que t == 1
+    while t != 1:
+        # Encontrar el menor i tal que t^(2^i) ≡ 1
+        t2i = t
+        i = 0
+        for i2 in range(1, M):
+            t2i = pow(t2i, 2, p)
+            if t2i == 1:
+                i = i2
+                break
+        # Calcular factor de ajuste
+        b = pow(c, 1 << (M - i - 1), p)  # 2^(M-i-1)
+        # Actualizar x, t, c, M
+        R = (R * b) % p
+        t = (t * b * b) % p
+        c = (b * b) % p
+        M = i
+    return R
+
 
 
 def ecuacion_cuadratica(a:int,b:int,c:int,p:int)->Tuple[int,int]:

@@ -16,7 +16,6 @@ Interfaz de acceso interactivo o por lotes a la librería modular.py. Si este sc
 lanzar´a la interfaz de usuario para el modo interactivo.
 """
 
-import excepciones as exc
 import re
 import sys
 import argparse
@@ -25,30 +24,32 @@ from typing import TextIO
 
 CMD_RE = re.compile(r'\s*([A-Za-z_]\w*)\s*\(\s*(.*?)\s*\)\s*$') #expresion regular para identificar el comando 
 INT_RE = re.compile(r'[+-]?\d+') #expresion regular para identificar los numeros
+LIST_RE = re.compile(r'\[[^\]]+\]')
 
-    
 # Diccionario con el minimo y maximo de argumentos que puede admitir cada funcion
 N_ARGS = {
     "primo": (1, 1),
     "primos": (2, 2),
     "factorizar": (1, 1),
-    "mcd": (1, None),  
+    "mcd": (1, float('inf')),  
     "coprimos": (2, 2),
     "pow": (3, 3),
     "inv": (2, 2),
     "euler": (1, 1),
     "legendre": (2, 2),
+    "raiz": (2,2),
+    "resolverSistema": (1, float('inf'))
 }
 
 def check_function(function: str, argumentos: list):
     if function not in FUNCTIONS:
-        raise exc.ArgumentError()
+        raise mod.ArgumentError()
 
     # valida nº de argumentos (antes de llamar)
     min_a, max_a = N_ARGS.get(function, (0, None))
     n = len(argumentos)
-    if n < min_a or (max_a is not None and n > max_a):
-        raise exc.ArgumentError
+    if n < min_a or n > max_a:
+        raise mod.ArgumentError
 
     fn = FUNCTIONS[function]
     return fn(*argumentos)  
@@ -59,7 +60,7 @@ def check_argument(args: list):
     """
     for a in args:
         if type(a) is not int:
-            raise exc.ArgumentError
+            raise mod.ArgumentError
 
 def extraer_comando(linea:str) -> tuple[str, list[int]]: 
     """
@@ -76,18 +77,24 @@ def extraer_comando(linea:str) -> tuple[str, list[int]]:
 
     if not m:
         # Formato incorrecto: comando desconocido, paréntesis mal, basura al final, etc.
-        raise exc.ArgumentError
+        raise mod.ArgumentError
 
     nombre = m.group(1)
     argstr = m.group(2)
     VALID_ARG = re.compile(r"^[+-]?\d+(?:\s*,\s*[+-]?\d+)*\s*$") #Condición para no incluir letras y puntos en los args
     if not bool(VALID_ARG.fullmatch(argstr)):
-        raise exc.ArgumentError
-
-    # Extrae todos los enteros de una pasada (tolerante a espacios y signos + / -)
-    args = [int(x) for x in INT_RE.findall(argstr)]
-    return nombre, args
-
+        VALID_SIST = re.compile(r"^\[[+-]?\d+;[+-]?\d+;[+-]?\d+\](?:,\[[+-]?\d+;[+-]?\d+;[+-]?\d+\])*$")
+        if nombre == "resolverSistema" and bool(VALID_SIST.fullmatch(argstr)):
+            pattern = re.compile(r"\[([^\]]+)\]")
+            args = [list(map(int, group.split(';'))) for group in pattern.findall(argstr)]
+            return nombre, args
+        else:
+            raise mod.ArgumentError
+    else:
+        # Extrae todos los enteros de una pasada (tolerante a espacios y signos + / -)
+        args = [int(x) for x in INT_RE.findall(argstr)]
+        return nombre, args
+    
 def interactive_loop():
     while True:
         linea = input(">>> ").strip()
@@ -95,12 +102,11 @@ def interactive_loop():
             break
         try:
             comando, args = extraer_comando(linea)
-            check_argument(args)
             res = check_function(comando, args)
             print(res)
-        except ZeroDivisionError:
-            print("NE: operación sin solución")
-        except exc.ArgumentError:
+        except (ZeroDivisionError, mod.IncompatibleEquationError) as e:
+            print(f"NE: {e}")
+        except mod.ArgumentError:
             print("NOP: comando o argumentos inválidos")
         except Exception as e:
             print(f"NOP: {e}")
@@ -125,9 +131,9 @@ def run_commands(fin: TextIO = None, fout: TextIO = None) -> None:
             comando, args = extraer_comando(s)
             res = check_function(comando, args)
             fout.write(str(res) + "\n")
-        except ZeroDivisionError:
+        except (ZeroDivisionError, mod.IncompatibleEquationError):
             fout.write("NE\n")
-        except exc.ArgumentError:
+        except mod.ArgumentError:
             fout.write("NOP\n")
         except Exception:
             fout.write("NOP\n")  # error inesperado → también NOP
@@ -151,7 +157,7 @@ def factorizar(n: int) -> str: #Hay que cambiarla
 def mcd(*nums: int) -> int:
 
     if len(nums) == 0:
-        raise exc.ArgumentError()
+        raise mod.ArgumentError()
 
     elif len(nums) == 1: 
         return abs(nums[0])
@@ -177,6 +183,27 @@ def euler(n: int) -> int:
 def legendre(n: int, p: int):
     return mod.legendre(n, p)
 
+def raiz(n: int, p: int) -> int:
+    return mod.raiz_mod_p(n, p)
+
+def resolverSistema(*listas:list[int]) -> tuple[int,int]:
+    
+    #return mod.resolver_sistema_congruencias(alist, blist, clist)
+    a_list_final = []
+    b_list_final = []
+    c_list_final = []
+
+
+    for alist,blist,clist in listas:
+        if len(alist) != 3 or len(blist) != 3 or len(clist) != 3:
+            raise mod.ArgumentError()
+        else:
+            a_list_final.append(alist)
+            b_list_final.append(blist)
+            c_list_final.append(clist)
+        
+    return mod.resolver_sistema_congruencias(a_list_final, b_list_final, c_list_final)
+
 FUNCTIONS = {
             "primo": primo,
             "primos": primos,
@@ -187,17 +214,19 @@ FUNCTIONS = {
             "inv": inv,
             "euler": euler,
             "legendre": legendre,
+            "resolverSistema": resolverSistema,
+            "raiz": raiz
             }  
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-i", "--input",  type=argparse.FileType("r"), default=None)
-    parser.add_argument("-o", "--output", type=argparse.FileType("w"), default=None)
+    parser.add_argument("-i", "--input",  type=argparse.FileType("r", encoding="utf-8"), default=None)
+    parser.add_argument("-o", "--output", type=argparse.FileType("w", encoding="utf-8"), default=None)
     args = parser.parse_args()
 
     # por ahora, solo mostramos qué llegó
-    fin  = args.input  or sys.stdin
-    fout = args.output or sys.stdout
+    entrada  = args.input  or sys.stdin
+    salida = args.output or sys.stdout
 
     # decidimos modo de la forma más simple posible:
     # interactivo SOLO si no nos han pasado -i/-o y además stdin y stdout son TTY
@@ -208,11 +237,10 @@ def main():
         print("Entrando en modo interactivo... (Presiona ENTER sin argumentos para salir) \n")
         interactive_loop()
     else:
-        run_commands()
+        run_commands(fin=entrada, fout=salida)
 
 
 
 if __name__ == "__main__":
-    main()
-    #interactive_loop()
-    #print(mcd(1,20))
+    #main()
+    resolverSistema([2,4,6])
