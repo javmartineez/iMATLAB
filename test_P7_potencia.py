@@ -4,7 +4,7 @@ from test_imatlab import try_command
 
 @pytest.mark.parametrize("base,exp,p,salida_esperada",[
     (2,3,7,1),    
-    #COMPLETAR    
+    (7,8,9,4)   
 ])
 def test_potencia_mod_p_basico(base: int, exp:int, p:int, salida_esperada: int) -> None:
     assert(modular.potencia_mod_p(base,exp,p)==salida_esperada)
@@ -20,8 +20,8 @@ def test_potencia_mod_p_cero():
 
 @pytest.mark.parametrize("base,exp,p,salida_esperada",[    
     (2,3,7,"1"),
-    (0,0,0,"NE")
-    #COMPLETAR 
+    (0,0,0,"NE"),
+    (7,8,9,"4")
 ])
 def test_potencia_imatlab(base: int, exp:int, p:int, salida_esperada: str) -> None:
     try_command(f"pow({base},{exp},{p})",salida_esperada)
