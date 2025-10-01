@@ -520,8 +520,49 @@ def raiz_mod_p(n:int,p:int)->int:
     Examples:
         raiz_mod_p(2,7)=3
     """
-    #Opcional
-    #sabemos que 
+    # Caso trivial: si n es 0 mod p, la raíz es 0
+    if n % p == 0:
+        return 0
+    # Si p es 2 (primo trivial), devolver n mod 2
+    if p == 2:
+        return n % 2
+    # Comprobar existencia de solución (Euler)
+    if pow(n, (p - 1)//2, p) == p - 1:
+        raise IncompatibleEquationError(f"No existe raíz cuadrada de {n} módulo {p}")
+    # Factorizar p-1 = Q * 2^S con Q impar
+    Q = p - 1
+    S = 0
+    while Q % 2 == 0:
+        Q //= 2
+        S += 1
+    # Encontrar un no-residuo cuadrático z
+    z = 2
+    while pow(z, (p - 1)//2, p) != p - 1:
+        z += 1
+    # Inicializar valores para Tonelli-Shanks
+    M = S
+    c = pow(z, Q, p)
+    t = pow(n, Q, p)
+    R = pow(n, (Q + 1)//2, p)
+    # Iterar hasta que t == 1
+    while t != 1:
+        # Encontrar el menor i tal que t^(2^i) ≡ 1
+        t2i = t
+        i = 0
+        for i2 in range(1, M):
+            t2i = pow(t2i, 2, p)
+            if t2i == 1:
+                i = i2
+                break
+        # Calcular factor de ajuste
+        b = pow(c, 1 << (M - i - 1), p)  # 2^(M-i-1)
+        # Actualizar x, t, c, M
+        R = (R * b) % p
+        t = (t * b * b) % p
+        c = (b * b) % p
+        M = i
+    return R
+
 
 
 def ecuacion_cuadratica(a:int,b:int,c:int,p:int)->Tuple[int,int]:
