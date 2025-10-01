@@ -16,7 +16,6 @@ Interfaz de acceso interactivo o por lotes a la librería modular.py. Si este sc
 lanzar´a la interfaz de usuario para el modo interactivo.
 """
 
-import excepciones as exc
 import re
 import sys
 import argparse
@@ -42,13 +41,13 @@ N_ARGS = {
 
 def check_function(function: str, argumentos: list):
     if function not in FUNCTIONS:
-        raise exc.ArgumentError()
+        raise mod.ArgumentError()
 
     # valida nº de argumentos (antes de llamar)
     min_a, max_a = N_ARGS.get(function, (0, None))
     n = len(argumentos)
     if n < min_a or (max_a is not None and n > max_a):
-        raise exc.ArgumentError
+        raise mod.ArgumentError
 
     fn = FUNCTIONS[function]
     return fn(*argumentos)  
@@ -59,7 +58,7 @@ def check_argument(args: list):
     """
     for a in args:
         if type(a) is not int:
-            raise exc.ArgumentError
+            raise mod.ArgumentError
 
 def extraer_comando(linea:str) -> tuple[str, list[int]]: 
     """
@@ -76,13 +75,13 @@ def extraer_comando(linea:str) -> tuple[str, list[int]]:
 
     if not m:
         # Formato incorrecto: comando desconocido, paréntesis mal, basura al final, etc.
-        raise exc.ArgumentError
+        raise mod.ArgumentError
 
     nombre = m.group(1)
     argstr = m.group(2)
     VALID_ARG = re.compile(r"^[+-]?\d+(?:\s*,\s*[+-]?\d+)*\s*$") #Condición para no incluir letras y puntos en los args
     if not bool(VALID_ARG.fullmatch(argstr)):
-        raise exc.ArgumentError
+        raise mod.ArgumentError
 
     # Extrae todos los enteros de una pasada (tolerante a espacios y signos + / -)
     args = [int(x) for x in INT_RE.findall(argstr)]
@@ -100,7 +99,7 @@ def interactive_loop():
             print(res)
         except (ZeroDivisionError, mod.IncompatibleEquationError) as e:
             print(f"NE: {e}")
-        except exc.ArgumentError:
+        except mod.ArgumentError:
             print("NOP: comando o argumentos inválidos")
         except Exception as e:
             print(f"NOP: {e}")
@@ -127,7 +126,7 @@ def run_commands(fin: TextIO = None, fout: TextIO = None) -> None:
             fout.write(str(res) + "\n")
         except (ZeroDivisionError, mod.IncompatibleEquationError):
             fout.write("NE\n")
-        except exc.ArgumentError:
+        except mod.ArgumentError:
             fout.write("NOP\n")
         except Exception:
             fout.write("NOP\n")  # error inesperado → también NOP
@@ -151,7 +150,7 @@ def factorizar(n: int) -> str: #Hay que cambiarla
 def mcd(*nums: int) -> int:
 
     if len(nums) == 0:
-        raise exc.ArgumentError()
+        raise mod.ArgumentError()
 
     elif len(nums) == 1: 
         return abs(nums[0])
@@ -189,7 +188,7 @@ FUNCTIONS = {
             "legendre": legendre,
             }  
 
-def main(argv=None):
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--input",  type=argparse.FileType("r", encoding="utf-8"), default=None)
     parser.add_argument("-o", "--output", type=argparse.FileType("w", encoding="utf-8"), default=None)

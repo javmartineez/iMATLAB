@@ -4,7 +4,7 @@ modular.py
 Matemática Discreta - IMAT
 ICAI, Universidad Pontificia Comillas
 
-Grupo: GPxxx
+Grupo: GP09B
 Integrantes:
     - Javier Mochales López
     - Javier Martínez Berenguer 
@@ -15,9 +15,12 @@ Librería para la realización de cálculos y resolución de problemas de aritm�
 
 from typing import Tuple, List, Dict
 import math
-import excepciones as e
+
 
 class IncompatibleEquationError(Exception):
+    pass
+
+class ArgumentError(Exception):
     pass
 
 
@@ -307,7 +310,7 @@ def potencia_mod_p(base:int, exp:int, p:int) -> int:
     if base == 0 and exp == 0:
         raise ZeroDivisionError
     if type(base or exp or p) != int: 
-        raise e.ArgumentError
+        raise ArgumentError
 
     p = abs(p)           # trabajamos con módulo positivo
 
@@ -338,7 +341,6 @@ def potencia_mod_p(base:int, exp:int, p:int) -> int:
 
     
     
-
 
 def inversa_mod_p(n:int,p:int)->int:
     """ Calcula la inversa de un número n módulo p.
