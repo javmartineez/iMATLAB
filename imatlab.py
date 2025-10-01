@@ -49,7 +49,7 @@ def check_function(function: str, argumentos: list):
     min_a, max_a = N_ARGS.get(function, (0, None))
     n = len(argumentos)
     if n < min_a or n > max_a:
-        raise exc.ArgumentError
+        raise mod.ArgumentError
 
     fn = FUNCTIONS[function]
     return fn(*argumentos)  
@@ -89,7 +89,7 @@ def extraer_comando(linea:str) -> tuple[str, list[int]]:
             args = [list(map(int, group.split(';'))) for group in pattern.findall(argstr)]
             return nombre, args
         else:
-            raise exc.ArgumentError
+            raise mod.ArgumentError
     else:
         # Extrae todos los enteros de una pasada (tolerante a espacios y signos + / -)
         args = [int(x) for x in INT_RE.findall(argstr)]
@@ -196,7 +196,7 @@ def resolverSistema(*listas:list[int]) -> tuple[int,int]:
 
     for alist,blist,clist in listas:
         if len(alist) != 3 or len(blist) != 3 or len(clist) != 3:
-            raise exc.ArgumentError()
+            raise mod.ArgumentError()
         else:
             a_list_final.append(alist)
             b_list_final.append(blist)
