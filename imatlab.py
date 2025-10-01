@@ -25,19 +25,21 @@ from typing import TextIO
 
 CMD_RE = re.compile(r'\s*([A-Za-z_]\w*)\s*\(\s*(.*?)\s*\)\s*$') #expresion regular para identificar el comando 
 INT_RE = re.compile(r'[+-]?\d+') #expresion regular para identificar los numeros
+LIST_RE = re.compile(r'\[[^\]]+\]')
 
-    
 # Diccionario con el minimo y maximo de argumentos que puede admitir cada funcion
 N_ARGS = {
     "primo": (1, 1),
     "primos": (2, 2),
     "factorizar": (1, 1),
-    "mcd": (1, None),  
+    "mcd": (1, float('inf')),  
     "coprimos": (2, 2),
     "pow": (3, 3),
     "inv": (2, 2),
     "euler": (1, 1),
     "legendre": (2, 2),
+    "raiz": (2,2),
+    "resolverSistema": (1, float('inf'))
 }
 
 def check_function(function: str, argumentos: list):
@@ -47,7 +49,7 @@ def check_function(function: str, argumentos: list):
     # valida nº de argumentos (antes de llamar)
     min_a, max_a = N_ARGS.get(function, (0, None))
     n = len(argumentos)
-    if n < min_a or (max_a is not None and n > max_a):
+    if n < min_a or n > max_a:
         raise exc.ArgumentError
 
     fn = FUNCTIONS[function]
@@ -82,12 +84,18 @@ def extraer_comando(linea:str) -> tuple[str, list[int]]:
     argstr = m.group(2)
     VALID_ARG = re.compile(r"^[+-]?\d+(?:\s*,\s*[+-]?\d+)*\s*$") #Condición para no incluir letras y puntos en los args
     if not bool(VALID_ARG.fullmatch(argstr)):
-        raise exc.ArgumentError
-
-    # Extrae todos los enteros de una pasada (tolerante a espacios y signos + / -)
-    args = [int(x) for x in INT_RE.findall(argstr)]
-    return nombre, args
-
+        VALID_SIST = re.compile(r"^\[[+-]?\d+;[+-]?\d+;[+-]?\d+\](?:,\[[+-]?\d+;[+-]?\d+;[+-]?\d+\])*$")
+        if nombre == "resolverSistema" and bool(VALID_SIST.fullmatch(argstr)):
+            pattern = re.compile(r"\[([^\]]+)\]")
+            args = [list(map(int, group.split(';'))) for group in pattern.findall(argstr)]
+            return nombre, args
+        else:
+            raise exc.ArgumentError
+    else:
+        # Extrae todos los enteros de una pasada (tolerante a espacios y signos + / -)
+        args = [int(x) for x in INT_RE.findall(argstr)]
+        return nombre, args
+    
 def interactive_loop():
     while True:
         linea = input(">>> ").strip()
@@ -95,7 +103,6 @@ def interactive_loop():
             break
         try:
             comando, args = extraer_comando(linea)
-            check_argument(args)
             res = check_function(comando, args)
             print(res)
         except ZeroDivisionError:
@@ -177,6 +184,27 @@ def euler(n: int) -> int:
 def legendre(n: int, p: int):
     return mod.legendre(n, p)
 
+def raiz(n: int, p: int) -> int:
+    return mod.raiz_mod_p(n, p)
+
+def resolverSistema(*listas:list[int]) -> tuple[int,int]:
+    
+    #return mod.resolver_sistema_congruencias(alist, blist, clist)
+    a_list_final = []
+    b_list_final = []
+    c_list_final = []
+
+
+    for alist,blist,clist in listas:
+        if len(alist) != 3 or len(blist) != 3 or len(clist) != 3:
+            raise exc.ArgumentError()
+        else:
+            a_list_final.append(alist)
+            b_list_final.append(blist)
+            c_list_final.append(clist)
+        
+    return mod.resolver_sistema_congruencias(a_list_final, b_list_final, c_list_final)
+
 FUNCTIONS = {
             "primo": primo,
             "primos": primos,
@@ -187,6 +215,8 @@ FUNCTIONS = {
             "inv": inv,
             "euler": euler,
             "legendre": legendre,
+            "resolverSistema": resolverSistema,
+            "raiz": raiz
             }  
 
 def main():
@@ -213,6 +243,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
-    #interactive_loop()
-    #print(mcd(1,20))
+    #main()
+    resolverSistema([2,4,6])
