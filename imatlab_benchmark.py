@@ -79,18 +79,12 @@ def profile(in_file:str, out_file:str):
 if __name__ == "__main__":
     #Inicar el listado de ficheros de entrada y de salida para procesar
     #Comentar, añadir o eliminar ficheros según sea necesario.
+    in_files=["sistemaTest.txt"]
+    out_files=["sistemaTest_obtained.txt"]
     # in_files=["primosTest.txt","factorTest.txt","mcdTest.txt","potenciaTest.txt",
-    #           "invTest.txt","eulerTest.txt"]
+    #            "invTest.txt","eulerTest.txt","sistemaTest.txt","cuadraticaTest.txt"]
     # out_files=["primosTest_obtained.txt","factorTest_obtained.txt","mcdTest_obtained.txt","potenciaTest_obtained.txt",
-    #           "invTest_obtained.txt","eulerTest_obtained.txt"]
-    #in_files=["primosTest.txt","factorTest.txt","mcdTest.txt","potenciaTest.txt",
-    #            "invTest.txt","eulerTest.txt","cuadraticaTest.txt"]
-    #out_files=["primosTest_out.txt","factorTest_out.txt","mcdTest_out.txt","potenciaTest_out.txt",
-    #            "invTest_out.txt","eulerTest_out.txt","cuadraticaTest_out.txt"]
-    #in_files=["ejemplosComandos.txt"]
-    #out_files=["ejemplosSalida.txt"]
-    in_files=["eulerTest.txt"]
-    out_files=["eulerTest_out.txt"]
+    #             "invTest_obtained.txt","eulerTest_obtained.txt","sistemaTest_obtained.txt","cuadraticaTest_obtained.txt"]
     
     #Lista de tiempos obtenidos
     runtime=[]
