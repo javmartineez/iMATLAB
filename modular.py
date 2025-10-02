@@ -104,20 +104,20 @@ def factorizar(n:int)->Dict[int,int]: #Editada
         factorizar(12)={2: 2, 3: 1}
         factorizar(0)={}
     """
-    if n in {0, 1, -1}:
+    if n in {0, 1, -1}: #Casos sin sin sentido
         return {}
 
-    n = abs(n)
+    n = abs(n) #Quitamos el signo para que sea más sencillo el código
 
-    if es_primo(n):
+    if es_primo(n): #Si es primo no se puede factorizar
         return {n: 1}
 
     fac: dict[int, int] = {}
 
     # 2
     e = 0
-    while (n & 1) == 0:
-        n >>= 1; e += 1
+    while (n & 1) == 0: #Mientras que n es par
+        n >>= 1; e += 1 #Dividimos n por 2 y sumamos 1 a e
     if e: fac[2] = e
 
     # 3
@@ -409,11 +409,11 @@ def inversa_mod_p(n:int,p:int)->int:
         inversa_mod_p(2,7)=4
     """
 
-    if p == 0:
+    if p == 0: # Comprobamos módulo 0
         raise ZeroDivisionError
-    p0 = p
+    p0 = p 
     x0, x1 = 0, 1
-    n = n % p  # normalizar n en el rango [0, p-1]
+    n = n % p  # disminuir n si es más grande que el módulo
 
     while n > 1:
         if p == 0:
