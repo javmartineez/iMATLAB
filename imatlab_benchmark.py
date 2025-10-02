@@ -22,7 +22,7 @@ import imatlab
 
 #Número de repeticiones de la toma de tiempos.
 #Aumentarlo disminuye efectos aleatorios o casuales en el código, pero aumenta el coste de ejecución.
-NITERS=10
+NITERS=20
 
 def testRun(in_file:str, out_file:str):
     """ Wrapper para timeit y profile que abre los ficheros proporcionados
@@ -79,8 +79,12 @@ def profile(in_file:str, out_file:str):
 if __name__ == "__main__":
     #Inicar el listado de ficheros de entrada y de salida para procesar
     #Comentar, añadir o eliminar ficheros según sea necesario.
+    in_files=["potenciaTest.txt"]
+    out_files=["potenciaTest_obtained.txt"]
+    #in_files=["primosTest.txt","factorTest.txt","mcdTest.txt","potenciaTest.txt","invTest.txt","eulerTest.txt","sistemaTest.txt"]
+    #out_files=["primosTest_obtained.txt","factorTest_obtained.txt","mcdTest_obtained.txt","potenciaTest_obtained.txt","invTest_obtained.txt","eulerTest_obtained.txt","sistemaTest_obtained.txt"]
     # in_files=["primosTest.txt","factorTest.txt","mcdTest.txt","potenciaTest.txt",
-    #           "invTest.txt","eulerTest.txt"]
+    #            "invTest.txt","eulerTest.txt","sistemaTest.txt","cuadraticaTest.txt"]
     # out_files=["primosTest_obtained.txt","factorTest_obtained.txt","mcdTest_obtained.txt","potenciaTest_obtained.txt",
     #           "invTest_obtained.txt","eulerTest_obtained.txt"]
     #in_files=["primosTest.txt","factorTest.txt","mcdTest.txt","potenciaTest.txt",

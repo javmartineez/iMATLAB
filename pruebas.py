@@ -1,46 +1,58 @@
-import excepciones as exc
-import re
-import sys
-import argparse
-import modular as mod
-from typing import TextIO
+def mcd(a:int,b:int)->int:
+    """ Calcula el máximo común divisor de dos enteros a y b.
+    Args:
+        a (int): Primer entero.
+        b (int): Segundo entero.
+    
+    Returns:
+        int: devuelve el máximo común divisor de a y b
 
-CMD_RE = re.compile(r'\s*([A-Za-z_]\w*)\s*\(\s*(.*?)\s*\)\s*$') #expresion regular para identificar el comando 
-INT_RE = re.compile(r'[+-]?\d+') #expresion regular para identificar los numeros
-LIST_RE = re.compile(r'\[[^\]]+\]')
+    Raises: None
 
-def extraer_comando(linea:str) -> tuple[str, list[int]]: 
+    Examples:
+        mcd(10,15)=5
     """
-    Extrae el nombre del comando y sus argumentos enteros desde una línea tipo:
-        'mcd(6, 9)'  -> ('mcd', [6, 9])
-        'primo(7)'   -> ('primo', [7])
-        'factorizar(-10)' -> ('factorizar', [-10])
+    #Hacemos uso del algoritmo de Euclides
+    # el mcd es independiente del signo por lo que utilizamos el valor aboluto
 
-    Si la línea NO cumple el patrón comando(args), lanza NOP().
-    Nota: la línea vacía debe tratarse FUERA (p. ej. en run_commands).
-    """
-    s = linea.strip()
-    m = CMD_RE.fullmatch(s)
-
-    if not m:
-        # Formato incorrecto: comando desconocido, paréntesis mal, basura al final, etc.
-        raise exc.ArgumentError
-
-    nombre = m.group(1)
-    argstr = m.group(2)
-    VALID_ARG = re.compile(r"^[+-]?\d+(?:\s*,\s*[+-]?\d+)*\s*$") #Condición para no incluir letras y puntos en los args
-    if not bool(VALID_ARG.fullmatch(argstr)):
-        VALID_SIST = re.compile(r"^\[[+-]?\d+;[+-]?\d+;[+-]?\d+\](?:,\[[+-]?\d+;[+-]?\d+;[+-]?\d+\])*$")
-        if nombre == "resolverSistema" and bool(VALID_SIST.fullmatch(argstr)):
-            pattern = re.compile(r"\[([^\]]+)\]")
-            args = [list(map(int, group.split(';'))) for group in pattern.findall(argstr)]
-            return nombre, args
-        else:
-            raise exc.ArgumentError
+    a, b = abs(a), abs(b)
+    #Miramos si alguno de los argumentos es 0
+    if a == 0:
+        return b
+    if b == 0:
+        return a
+    
+    factor_2a = 0
+    factor_2b = 0
+    while (a & 1) == 0:
+        a >>= 1
+        factor_2a += 1
+    while (b & 1) == 0:
+        b >>= 1
+        factor_2b += 1
+    if a > b:
+        a, b = b, a
+    while a not in {0,1}:
+        b -= a
+        while (b & 1) == 0 and b != 0:
+            b >>= 1
+        if a > b:
+            a, b = b, a
+    if a == 1:
+        return 1 << min(factor_2a, factor_2b)
     else:
-        # Extrae todos los enteros de una pasada (tolerante a espacios y signos + / -)
-        args = [int(x) for x in INT_RE.findall(argstr)]
-        return nombre, args
+        return b << min(factor_2a,factor_2b)
+
+def mcd_orig(a, b):
+    if a > b:
+        a, b = b, a
+
+    while a != 0:   # resto de dividir b por a
+        b, a = a, b % a    # (a, b) -> (r, a)
+    return b           # al terminar, b es el mcd
 
 if __name__ == "__main__":
-    print(extraer_comando("resolverSistema([2;4;6],[1;3;5],[0;0;0])"))
+    a = 2
+    b = 14
+    print(mcd(a,b))
+    print(mcd_orig(a,b))
