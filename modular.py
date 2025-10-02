@@ -41,11 +41,9 @@ def es_primo(n:int)->bool: #Editado
         es_primo(4)=False
         
     """
-    if n == 2:
-        return True
 
-    elif n < 2 or n % 2 == 0:
-        return False
+    if n < 2 or n % 2 == 0:
+        return n == 2
 
     else:
         for i in range(3, math.isqrt(n) + 1, 2):
@@ -168,44 +166,69 @@ def mcd(a:int,b:int)->int:
     #Hacemos uso del algoritmo de Euclides
     # el mcd es independiente del signo por lo que utilizamos el valor aboluto
 
-    a, b = abs(a), abs(b)
-    #Miramos si alguno de los argumentos es 0
-    if a == 0:
-        return b
-    if b == 0:
-        return a
+    # a, b = abs(a), abs(b)
+    # #Miramos si alguno de los argumentos es 0
+    # if a == 0:
+    #     return b
+    # if b == 0:
+    #     return a
     
-    factor_2a = 0
-    factor_2b = 0
-    while (a & 1) == 0:
-        a >>= 1
-        factor_2a += 1
-    while (b & 1) == 0:
-        b >>= 1
-        factor_2b += 1
-    if a > b:
-        a, b = b, a
-    while a not in {0,1}:
-        b -= a
-        while (b & 1) == 0 and b != 0:
-            b >>= 1
-        if a > b:
-            a, b = b, a
-    if a == 1:
-        return 1 << min(factor_2a, factor_2b)
-    else:
-        return b << min(factor_2a,factor_2b)
-        
-    
-
-
-    # # garantizar 0 < a <= b (o a=0)
+    # factor_2a = 0
+    # factor_2b = 0
+    # while (a & 1) == 0:
+    #     a >>= 1
+    #     factor_2a += 1
+    # while (b & 1) == 0:
+    #     b >>= 1
+    #     factor_2b += 1
     # if a > b:
     #     a, b = b, a
+    # while a not in {0,1}:
+    #     b -= a
+    #     while (b & 1) == 0 and b != 0:
+    #         b >>= 1
+    #     if a > b:
+    #         a, b = b, a
+    # if a == 1:
+    #     return 1 << min(factor_2a, factor_2b)
+    # else:
+    #     return b << min(factor_2a,factor_2b)
+    #------------------------------------------------------------    
+    
 
-    # while a != 0:   # resto de dividir b por a
-    #     b, a = a, b % a    # (a, b) -> (r, a)
-    # return b           # al terminar, b es el mcd
+    # #OPCIÓN BASICA SIN BINARIO
+    # garantizar 0 < a <= b (o a=0)
+    if a > b:
+        a, b = b, a
+
+    while a != 0:   # resto de dividir b por a
+        b, a = a, b % a    # (a, b) -> (r, a)
+    return b           # al terminar, b es el mcd
+    #-----------------------------------------------------
+    # a, b = abs(a), abs(b)
+    # if a == 0: return b
+    # if b == 0: return a
+
+    # # contar factores de 2 comunes
+    # shift = 0
+    # while ((a | b) & 1) == 0:   # ambos pares
+    #     a >>= 1
+    #     b >>= 1
+    #     shift += 1
+
+    # # quitar factores de 2 de 'a'
+    # while (a & 1) == 0:
+    #     a >>= 1
+
+    # while b != 0:
+    #     # quitar factores de 2 de 'b'
+    #     while (b & 1) == 0:
+    #         b >>= 1
+    #     if a > b:
+    #         a, b = b, a
+    #     b -= a
+    # return a << shift
+
 
 
 
@@ -334,39 +357,36 @@ def potencia_mod_p(base:int, exp:int, p:int) -> int:
     Examples:
         potencia_mod_p(2,3,7)=1
     """
-    
     if p == 0:
-        raise ZeroDivisionError
+        raise ZeroDivisionError("El módulo no puede ser 0.")
+    elif p < 0:
+        raise IncompatibleEquationError("El módulo no puede sr negativo")
     if base == 0 and exp == 0:
-        raise ZeroDivisionError
-    if type(base or exp or p) != int: 
-        raise ArgumentError
-
-    p = abs(p)           # trabajamos con módulo positivo
-
-    if p == 1: 
-        return 0
-
-    # Normaliza la base con respecto al modulo 
-    base %= p
-
-    # Exponente 0
+        raise ZeroDivisionError("0^0 es una indeterminación no definida.")
     if exp == 0:
-        return 1 % p
+        raise ZeroDivisionError("0^0 es una indeterminación no definida.") if base == 0 else 1
+    if p == 1:  #Cualquier número en módulo 1 es 0
+        return 0  
+    
+    base_mod = base % p #Reducimos la base por si es mayor que el p
+    if base_mod == 0: #Caso en el que la base es coprimo con p
 
-    # Exponente negativo: usa la inversa modular
-    if exp < 0:
-        if base == 0:
-            raise ZeroDivisionError("0 no tiene inversa módulo p; exponente negativo no permitido")
-        if not coprimos(base, p):
-            raise IncompatibleEquationError(f"{base} no es invertible módulo {p}; exponente negativo no permitido")
-        base = inversa_mod_p(base, p)
+        if exp > 0:
+            return 0
+        raise ZeroDivisionError("No existe inversa modular de 0.")
+
+    
+    if exp < 0: # si exp es negativo sustituimos base por su inversa modular
+  
+        base_mod = inversa_mod_p(base_mod, p)
         exp = -exp
-
-    # Caso exp > 0: multiplicación repetida con módulo en cada paso (O(exp))
+    # utilizamos binary exponentiation
     res = 1
-    for _ in range(exp):
-        res = (res * base) % p
+    while exp > 0:
+        if exp & 1:                 # si el primer bit del exponente es 1
+            res = (res * base_mod) % p  #hacemos el módulo ya que se mantienen las propiedades (mod(ab) = mod(a)*mod(b))
+        base_mod = (base_mod * base_mod) % p  # vamos aumentando la base con cada bit
+        exp >>= 1                   # siguiente bit del exponente
     return res
 
     
@@ -391,15 +411,22 @@ def inversa_mod_p(n:int,p:int)->int:
 
     if p == 0:
         raise ZeroDivisionError
-    # Si n y p no son coprimos, no existe inversa
-    if not coprimos(n, p):
-        raise ZeroDivisionError("inv(n,p) recibe dos enteros coprimos entre sí")
+    p0 = p
+    x0, x1 = 0, 1
+    n = n % p  # normalizar n en el rango [0, p-1]
 
-    # Bezout: d = mcd(n,p) y n*x + p*y = d
-    d, x, _ = bezout(n, p)
+    while n > 1:
+        if p == 0:
+            raise ZeroDivisionError(f"No existe inversa: gcd != 1")
 
-    # Normalizamos a [0, p-1]   
-    return x % p
+        q = n // p  # cociente
+        n, p = p, n % p
+        x0, x1 = x1 - q * x0, x0
+
+    if n != 1:  # gcd(n,p) != 1 → no son coprimos
+        raise ZeroDivisionError("No existe inversa: n y p no son coprimos.")
+
+    return x1 % p0
 
 
 def euler(n:int)->int:
@@ -558,68 +585,6 @@ def resolver_sistema_congruencias(alist:List[int], blist:List[int], plist:List[i
         M *= mod_pi  # actualizar el módulo total al nuevo mcm (producto pues son coprimos)
         r %= M      # normalizar el resultado
     return (r % M, M)
-
-
-def raiz_mod_p(n:int,p:int)->int:
-    """ Encuentra, si existe, una raíz cuadrada para un entero n módulo un número primo p.
-
-    Args:
-        n (int): Entero del que se desea hallar la raíz.
-        p (int): Módulo. Se asume que es un número primo.
-    
-    Returns:
-        int: Entero x entre 0 y p-1 tal que x^2 = n (mod p).
-
-    Raises:
-        IncompatibleEquationError: Si no es posible hallar dicha raíz.
-
-    Examples:
-        raiz_mod_p(2,7)=3
-    """
-    # Caso trivial: si n es 0 mod p, la raíz es 0
-    if n % p == 0:
-        return 0
-    # Si p es 2 (primo trivial), devolver n mod 2
-    if p == 2:
-        return n % 2
-    # Comprobar existencia de solución (Euler)
-    if pow(n, (p - 1)//2, p) == p - 1:
-        raise IncompatibleEquationError(f"No existe raíz cuadrada de {n} módulo {p}")
-    # Factorizar p-1 = Q * 2^S con Q impar
-    Q = p - 1
-    S = 0
-    while Q % 2 == 0:
-        Q //= 2
-        S += 1
-    # Encontrar un no-residuo cuadrático z
-    z = 2
-    while pow(z, (p - 1)//2, p) != p - 1:
-        z += 1
-    # Inicializar valores para Tonelli-Shanks
-    M = S
-    c = pow(z, Q, p)
-    t = pow(n, Q, p)
-    R = pow(n, (Q + 1)//2, p)
-    # Iterar hasta que t == 1
-    while t != 1:
-        # Encontrar el menor i tal que t^(2^i) ≡ 1
-        t2i = t
-        i = 0
-        for i2 in range(1, M):
-            t2i = pow(t2i, 2, p)
-            if t2i == 1:
-                i = i2
-                break
-        # Calcular factor de ajuste
-        b = pow(c, 1 << (M - i - 1), p)  # 2^(M-i-1)
-        # Actualizar x, t, c, M
-        R = (R * b) % p
-        t = (t * b * b) % p
-        c = (b * b) % p
-        M = i
-    return R
-
-
 
 def ecuacion_cuadratica(a:int,b:int,c:int,p:int)->Tuple[int,int]:
     """ Halla, si es posible, las dos posibles soluciones de la ecuación cuadrática ax^2+bx+c=0 (mod p).
