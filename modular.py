@@ -15,7 +15,6 @@ Librería para la realización de cálculos y resolución de problemas de aritm�
 
 from typing import Tuple, List, Dict
 import math
-from math import gcd
 
 
 class IncompatibleEquationError(Exception):
@@ -168,16 +167,46 @@ def mcd(a:int,b:int)->int:
     """
     #Hacemos uso del algoritmo de Euclides
     # el mcd es independiente del signo por lo que utilizamos el valor aboluto
-    a, b = abs(a), abs(b)
 
-    # garantizar 0 < a <= b (o a=0)
+    a, b = abs(a), abs(b)
+    #Miramos si alguno de los argumentos es 0
+    if a == 0:
+        return b
+    if b == 0:
+        return a
+    
+    factor_2a = 0
+    factor_2b = 0
+    while (a & 1) == 0:
+        a >>= 1
+        factor_2a += 1
+    while (b & 1) == 0:
+        b >>= 1
+        factor_2b += 1
     if a > b:
         a, b = b, a
+    while a not in {0,1}:
+        b -= a
+        while (b & 1) == 0 and b != 0:
+            b >>= 1
+        if a > b:
+            a, b = b, a
+    if a == 1:
+        return 1 << min(factor_2a, factor_2b)
+    else:
+        return b << min(factor_2a,factor_2b)
+        
+    
 
-    while a != 0:
-        r = b % a      # resto de dividir b por a
-        b, a = a, r    # (a, b) -> (r, a)
-    return b           # al terminar, b es el mcd
+
+    # # garantizar 0 < a <= b (o a=0)
+    # if a > b:
+    #     a, b = b, a
+
+    # while a != 0:   # resto de dividir b por a
+    #     b, a = a, b % a    # (a, b) -> (r, a)
+    # return b           # al terminar, b es el mcd
+
 
 
 def bezout(a:int, b:int) -> Tuple[int,int,int]:
@@ -446,7 +475,7 @@ def legendre(n:int,p:int)->int:
     if n == 0:
         return 0
     # Criterio de Euler: (an/p) ≡ n^{(p-1)/2} (mod p)
-    r = pow(n, (p - 1) // 2, p)
+    r = potencia_mod_p(n, (p - 1) // 2, p)
 
     return 1 if r == 1 else -1    # (p-1) ≡ -1 (mod p)
 
@@ -480,7 +509,7 @@ def resolver_sistema_congruencias(alist:List[int], blist:List[int], plist:List[i
     
     for a, b, p in zip(alist, blist, plist):
         # 1. Simplificar la congruencia individual a*x ≡ b (mod p) utilizando mcd
-        g = gcd(a, p)
+        g = mcd(a, p)
         if b % g != 0:
             raise IncompatibleEquationError("Sistema incompatible")
         a_red = a // g
