@@ -189,20 +189,15 @@ def raiz(n: int, p: int) -> int:
 def resolverSistema(*listas:list[int]) -> tuple[int,int]:
     
     #return mod.resolver_sistema_congruencias(alist, blist, clist)
-    a_list_final = []
-    b_list_final = []
-    c_list_final = []
-
-
-    for alist,blist,clist in listas:
-        if len(alist) != 3 or len(blist) != 3 or len(clist) != 3:
-            raise mod.ArgumentError()
-        else:
-            a_list_final.append(alist)
-            b_list_final.append(blist)
-            c_list_final.append(clist)
-        
-    return mod.resolver_sistema_congruencias(a_list_final, b_list_final, c_list_final)
+    alist = []
+    blist = []
+    clist = []
+    for a, b, c in listas:
+        alist.append(a)
+        blist.append(b)
+        clist.append(c)
+    r,m = mod.resolver_sistema_congruencias(alist, blist, clist)
+    return f"{r} (mod {m})"
 
 FUNCTIONS = {
             "primo": primo,
@@ -242,5 +237,4 @@ def main():
 
 
 if __name__ == "__main__":
-    #main()
-    resolverSistema([2,4,6])
+    main()

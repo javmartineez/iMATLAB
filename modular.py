@@ -15,6 +15,7 @@ Librería para la realización de cálculos y resolución de problemas de aritm�
 
 from typing import Tuple, List, Dict
 import math
+from math import gcd
 
 
 class IncompatibleEquationError(Exception):
@@ -363,7 +364,7 @@ def inversa_mod_p(n:int,p:int)->int:
         raise ZeroDivisionError
     # Si n y p no son coprimos, no existe inversa
     if not coprimos(n, p):
-        raise IncompatibleEquationError("inv(n,p) recibe dos enteros coprimos entre sí")
+        raise ZeroDivisionError("inv(n,p) recibe dos enteros coprimos entre sí")
 
     # Bezout: d = mcd(n,p) y n*x + p*y = d
     d, x, _ = bezout(n, p)
@@ -475,34 +476,60 @@ def resolver_sistema_congruencias(alist:List[int], blist:List[int], plist:List[i
         resolverSistema([2;4;6])=(2,3)
         resolverSistema([1;1;3],[4;7;11])=(10,33)        
     """
-    if not (len(alist) == len(blist) == len(plist)):
-        raise ValueError("Las listas a, b y p deben tener la misma longitud")
+    restricciones = {}  # clave: primo, valor: (exponente_max, resto_mod_p^exponente_max)
     
-    # 1. Calcular el producto total de los módulos
-    M = 1
-    for pi in plist:
-        M *= pi
+    for a, b, p in zip(alist, blist, plist):
+        # 1. Simplificar la congruencia individual a*x ≡ b (mod p) utilizando mcd
+        g = gcd(a, p)
+        if b % g != 0:
+            raise IncompatibleEquationError("Sistema incompatible")
+        a_red = a // g
+        b_red = b // g
+        p_red = p // g
+        # Obtener solución particular x ≡ c (mod p_red)
+        d, x_bez, y_bez = bezout(a_red, p_red)
+        inv_a = x_bez % p_red
+        c = (b_red * inv_a) % p_red  # este es el resto c_i que x debe cumplir mod p_red
+        # 2. Descomponer p_red en potencias de primos y generar restricciones
+        factores = factorizar(p_red)  # devuelve diccionario {primo: exponente}
+        for primo, exp in factores.items():
+            mod_pi = primo ** exp
+            resto_pi = c % mod_pi  # residuo de x mod primo^exp
+            # Si ya existe restricción para este primo, comprobar/actualizar
+            if primo in restricciones:
+                exp_actual, resto_actual = restricciones[primo]
+                if exp > exp_actual:
+                    # Nueva restricción más fuerte (exponente mayor)
+                    if resto_pi % (primo ** exp_actual) != resto_actual:
+                        raise IncompatibleEquationError("Sistema incompatible")
+                    restricciones[primo] = (exp, resto_pi)
+                elif exp == exp_actual:
+                    # Misma potencia: deben coincidir los restos
+                    if resto_pi != resto_actual:
+                        raise IncompatibleEquationError("Sistema incompatible")
+                    # (Si son iguales, la restricción es redundante y la ignoramos)
+                else:
+                    # Restricción más débil (menor exponente), comprobar consistencia
+                    if resto_actual % (primo ** exp) != resto_pi:
+                        raise IncompatibleEquationError("Sistema incompatible")
+                    # (Si coincide, ignoramos la más débil pues la fuerte ya la implica)
+            else:
+                restricciones[primo] = (exp, resto_pi)
+    
+    # 3. Ahora todas las restricciones tienen módulos coprimos (potencias de distintos primos)
+    r, M = 0, 1
+    for primo, (exp, resto) in restricciones.items():
+        mod_pi = primo ** exp
+        # Combinar x ≡ r (mod M) con x ≡ resto (mod mod_pi) usando CRT estándar (M y mod_pi coprimos)
+        d, x_bez, y_bez = bezout(M, mod_pi)
+        inv_M = x_bez % mod_pi  # inversa de M mod mod_pi
+        # Calcular incremento t para cumplir la nueva restricción
+        t = ((resto - r) * inv_M) % mod_pi
+        r = r + t * M
+        M *= mod_pi  # actualizar el módulo total al nuevo mcm (producto pues son coprimos)
+        r %= M      # normalizar el resultado
+    return (r % M, M)
 
-    x_total = 0  # acumulador para la solución
-    for ai, bi, pi in zip(alist, blist, plist):
-        # 2. Inversa modular de ai (si gcd(ai, pi)=1)
-        g, inv_ai, _ = bezout(ai, pi)
-        if bi % g != 0:
-            # Si gcd(ai, pi) no divide a bi, no hay solución
-            raise ValueError(f"No existe solución para la congruencia {ai}*x ≡ {bi} (mod {pi})")
-        if g != 1:
-            # Si ai y pi no son coprimos, la solución no sería única modulo pi
-            raise ValueError(f"{ai} no es coprimo con {pi}, no se puede obtener una inversa única")
-        inv_ai %= pi  # asegurar inversa positiva mod pi
-        # 3. Encontrar la solución particular x ≡ c_i (mod p_i)
-        ci = (bi * inv_ai) % pi
-        # 4. Combinar con la solución total usando el CRT
-        Ni = M // pi                  # producto de todos los módulos excepto p_i
-        _, inv_Ni, _ = bezout(Ni, pi)  # inversa de Ni mod p_i
-        inv_Ni %= pi
-        x_total += ci * Ni * inv_Ni    # sumar contribución modulo M
-    r = x_total % M  # solución mínima no negativa
-    return r, M
 
 def raiz_mod_p(n:int,p:int)->int:
     """ Encuentra, si existe, una raíz cuadrada para un entero n módulo un número primo p.
@@ -592,4 +619,4 @@ def ecuacion_cuadratica(a:int,b:int,c:int,p:int)->Tuple[int,int]:
 
 
 if __name__ == "__main__":
-    print(mcd(1,20))
+    pass
