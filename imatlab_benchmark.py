@@ -89,8 +89,8 @@ if __name__ == "__main__":
     #            "invTest_out.txt","eulerTest_out.txt","cuadraticaTest_out.txt"]
     #in_files=["ejemplosComandos.txt"]
     #out_files=["ejemplosSalida.txt"]
-    in_files=["eulerTest.txt"]
-    out_files=["eulerTest_out.txt"]
+    in_files=["mcdTest.txt"]
+    out_files=["mcdTest_out.txt"]
     
     #Lista de tiempos obtenidos
     runtime=[]

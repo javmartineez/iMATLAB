@@ -42,15 +42,19 @@ def es_primo(n:int)->bool: #Editado
         es_primo(4)=False
         
     """
+    #Caso especial si n = 2
     if n == 2:
         return True
 
+    #Numeros < 1 ó pares NO son primos
     elif n < 2 or n % 2 == 0:
         return False
 
+    #Algoritmo principal
     else:
         for i in range(3, math.isqrt(n) + 1, 2):
-            if n % i == 0:
+            #Comprobar si i es divisor de n
+            if n % i == 0: 
                 return False
 
         return True
@@ -81,7 +85,7 @@ def lista_primos(a,b)-> List[int]: #Editada
     if a % 2 == 0:
         a += 1
 
-    # Ahora iteramos solo sobre impares
+    # Algoritmo principal: iteramos solo sobre impares
     for i in range(a, b, 2):
         if es_primo(i):
             primos.append(i)
@@ -107,48 +111,56 @@ def factorizar(n:int)->Dict[int,int]: #Editada
         factorizar(12)={2: 2, 3: 1}
         factorizar(0)={}
     """
+    factores: dict[int, int] = {}
+
+    #Caso base 1
     if n in {0, 1, -1}:
         return {}
 
     n = abs(n)
 
+    #Caso base 2 
     if es_primo(n):
         return {n: 1}
 
-    fac: dict[int, int] = {}
-
-    # 2
+    # Comprobar factor 2
     e = 0
-    while (n & 1) == 0:
-        n >>= 1; e += 1
-    if e: fac[2] = e
+    while n % 2 == 0:
+        n >>= 1 #equivalente a n//= 2 pero más rápido
+        e += 1
+    if e: factores[2] = e
 
-    # 3
+    # Comprobar factor 3
     e = 0
     while n % 3 == 0:
-        n //= 3; e += 1
-    if e: fac[3] = e
+        n //= 3
+        e += 1
+    if e: factores[3] = e
 
-    # 6k ± 1
+    # Comprobamos factores de la forma 6k ± 1
     i = 5
     while i * i <= n:
+        #i = 6k - 1
         e = 0
         while n % i == 0:
-            n //= i; e += 1
-        if e: fac[i] = e
+            n //= i
+            e += 1
+        if e: factores[i] = e
 
+        #i = 6k + 1
         j = i + 2
         e = 0
         while n % j == 0:
-            n //= j; e += 1
-        if e: fac[j] = e
+            n //= j
+            e += 1
+        if e: factores[j] = e
 
         i += 6
 
-    if n > 1:
-        fac[n] = fac.get(n, 0) + 1
+    if n > 1: 
+        factores[n] = factores.get(n, 0) + 1
 
-    return fac
+    return factores
 
 
 
@@ -310,11 +322,10 @@ def potencia_mod_p(base:int, exp:int, p:int) -> int:
         raise ZeroDivisionError
     if base == 0 and exp == 0:
         raise ZeroDivisionError
-    if type(base or exp or p) != int: 
-        raise ArgumentError
 
-    p = abs(p)           # trabajamos con módulo positivo
+    p = abs(p) # trabajamos con módulo positivo
 
+    #Caso base
     if p == 1: 
         return 0
 
@@ -330,7 +341,7 @@ def potencia_mod_p(base:int, exp:int, p:int) -> int:
         if base == 0:
             raise ZeroDivisionError("0 no tiene inversa módulo p; exponente negativo no permitido")
         if not coprimos(base, p):
-            raise IncompatibleEquationError(f"{base} no es invertible módulo {p}; exponente negativo no permitido")
+            raise ZeroDivisionError(f"{base} no es invertible módulo {p}; exponente negativo no permitido")
         base = inversa_mod_p(base, p)
         exp = -exp
 
@@ -404,8 +415,8 @@ def euler(n:int)->int:
         p, k = next(iter(fact.items()))
         return (p - 1) * pow(p, k - 1)
 
-    # Caso general, utilizamos Formula de Producto de Euler: φ(n) = n * productorio_{p|n} (1 - 1/p)
 
+    # Caso general, utilizamos Formula de Producto de Euler: φ(n) = n * productorio_{p|n} (1 - 1/p)
     res = n
     for p in fact.keys():
         res = (res // p) * (p - 1)
@@ -446,7 +457,7 @@ def legendre(n:int,p:int)->int:
     if n == 0:
         return 0
     # Criterio de Euler: (an/p) ≡ n^{(p-1)/2} (mod p)
-    r = pow(n, (p - 1) // 2, p)
+    r = potencia_mod_p(n, (p - 1) // 2, p)
 
     return 1 if r == 1 else -1    # (p-1) ≡ -1 (mod p)
 
