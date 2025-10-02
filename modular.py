@@ -110,7 +110,7 @@ def factorizar(n:int)->Dict[int,int]: #Editada
         factorizar(12)={2: 2, 3: 1}
         factorizar(0)={}
     """
-    factores: dict[int, int] = {}
+    factors: dict[int, int] = {}
 
     #Caso base 1
     if n in {0, 1, -1}:
@@ -127,14 +127,14 @@ def factorizar(n:int)->Dict[int,int]: #Editada
     while (n & 1) == 0:
         n >>= 1 #equivalente a n//= 2 pero más rápido
         e += 1
-    if e: factores[2] = e
+    if e: factors[2] = e
 
     # Comprobar factor 3
     e = 0
     while n % 3 == 0:
         n //= 3
         e += 1
-    if e: factores[3] = e
+    if e: factors[3] = e
 
     # Comprobamos factores de la forma 6k ± 1
     i = 5
@@ -144,7 +144,7 @@ def factorizar(n:int)->Dict[int,int]: #Editada
         while n % i == 0:
             n //= i
             e += 1
-        if e: factores[i] = e
+        if e: factors[i] = e
 
         #i = 6k + 1
         j = i + 2
@@ -152,14 +152,14 @@ def factorizar(n:int)->Dict[int,int]: #Editada
         while n % j == 0:
             n //= j
             e += 1
-        if e: factores[j] = e
+        if e: factors[j] = e
 
         i += 6
 
     if n > 1: 
-        factores[n] = factores.get(n, 0) + 1
+        factors[n] = factors.get(n, 0) + 1
 
-    return factores
+    return factors
 
 
 
@@ -179,15 +179,15 @@ def mcd(a:int,b:int)->int:
     """
     #Hacemos uso del algoritmo de Euclides
     # el mcd es independiente del signo por lo que utilizamos el valor aboluto
-
-    # #OPCIÓN BASICA SIN BINARIO
-    # garantizar 0 < a <= b (o a=0)
-    if a > b:
+    a = abs(a)  #quitamos signo
+    b = abs(b)  #quitamos signo
+    if a > b: #garantizamos 0 <= a <= b
         a, b = b, a
 
     while a != 0:   # resto de dividir b por a
         b, a = a, b % a    # (a, b) -> (r, a)
     return b           # al terminar, b es el mcd
+
    
 
 
@@ -211,13 +211,23 @@ def bezout(a:int, b:int) -> Tuple[int,int,int]:
     Examples:
         bezout(6,10)=(2,2,-1)
     """
-    if b == 0:
-        return a, 1, 0  
-    else:
-        d, x1, y1 = bezout(b, a % b)
-        x = y1
-        y = x1 - (a // b) * y1
-        return (d, x, y)
+    #Guardamos los signos para la solución
+    sign_a = -1 if a < 0 else 1
+    sign_b = -1 if b < 0 else 1
+    a, b = abs(a), abs(b)
+
+    r, r_aux = a, b
+    x, x_aux = 1, 0
+    y, y_aux = 0, 1
+
+    while r_aux != 0:
+        q = r // r_aux  #Analizamos el resto
+        r, r_aux = r_aux, r - q * r_aux
+        x, x_aux = x_aux, x - q * x_aux #Actualizamos coeficiente x
+        y, y_aux = y_aux, y - q * y_aux #Actualizamos coeficiente y
+
+
+    return r, x * sign_a, y * sign_b
 
 
 def mcd_n(nlist:List[int])->int:
@@ -236,7 +246,7 @@ def mcd_n(nlist:List[int])->int:
     #Opcional
     g = 0
     for x in nlist:                 # O(n) llamadas a mcd; no se modifica la lista
-        g = mcd(g, x) if g else abs(x)
+        g = mcd(g, x)
         if g == 1:                 # corto-circuito útil: no puede bajar de 1
             return 1
         
@@ -263,6 +273,7 @@ def bezout_n(nlist:List[int])->Tuple[int,List[int]]:
     """
     if not nlist:
         return 0, []
+    
     if len(nlist) == 1:
         return abs(nlist[0]), [1 if nlist[0] >= 0 else -1]
 
@@ -273,7 +284,7 @@ def bezout_n(nlist:List[int])->Tuple[int,List[int]]:
     # Vamos incorporando uno a uno
     for i in range(2, len(nlist)):
         a = nlist[i]
-        d2, u, v = bezout(d, a)
+        d2, u, v = bezout(d, a) #Hacemos el bezout con el mcd anterior y el nuevo argumentos
         coefs = [c * u for c in coefs]
         coefs.append(v)
         d = d2
@@ -321,44 +332,35 @@ def potencia_mod_p(base:int, exp:int, p:int) -> int:
     if p == 0:
         raise ZeroDivisionError("El módulo no puede ser 0.")
     elif p < 0:
-        raise IncompatibleEquationError("El módulo no puede sr negativo")
+        raise IncompatibleEquationError("El módulo no puede ser negativo")
     if base == 0 and exp == 0:
-        raise ZeroDivisionError
+        raise ZeroDivisionError("Indeterminación 0^0 ")
 
     p = abs(p) # trabajamos con módulo positivo
 
     #Caso base
-    if p == 1: 
-        return 0
-
-    # Normaliza la base con respecto al modulo 
-    base %= p
-
-    # Exponente 0
-    if exp == 0:
-        raise ZeroDivisionError("0^0 es una indeterminación no definida.") if base == 0 else 1
+    if p == 0:
+        raise ZeroDivisionError("El módulo no puede ser 0.")
+    elif p < 0:
+        raise IncompatibleEquationError("El módulo no puede ser negativo")
+    if base == 0 and exp == 0:
+        raise ZeroDivisionError("Indeterminación 0^0")
+    
     if p == 1:  #Cualquier número en módulo 1 es 0
         return 0  
-    
-    base_mod = base % p #Reducimos la base por si es mayor que el p
-    if base_mod == 0: #Caso en el que la base es coprimo con p
-
-        if exp > 0:
-            return 0
-        raise ZeroDivisionError("No existe inversa modular de 0.")
 
     
     if exp < 0: # si exp es negativo sustituimos base por su inversa modular
-  
-        base_mod = inversa_mod_p(base_mod, p)
+        base = inversa_mod_p(base, p)
         exp = -exp
-        
+    # Normaliza la base con respecto al modulo 
+    base %= p
     # utilizamos binary exponentiation
     res = 1
     while exp > 0:
         if exp & 1:                 # si el primer bit del exponente es 1
-            res = (res * base_mod) % p  #hacemos el módulo ya que se mantienen las propiedades (mod(ab) = mod(a)*mod(b))
-        base_mod = (base_mod * base_mod) % p  # vamos aumentando la base con cada bit
+            res = (res * base) % p  #hacemos el módulo ya que se mantienen las propiedades (mod(ab) = mod(a)*mod(b))
+        base = (base * base) % p  # vamos aumentando la base con cada bit
         exp >>= 1                   # siguiente bit del exponente
     return res
 
@@ -520,8 +522,8 @@ def resolver_sistema_congruencias(alist:List[int], blist:List[int], plist:List[i
         inv_a = x_bez % p_red
         c = (b_red * inv_a) % p_red  # este es el resto c_i que x debe cumplir mod p_red
         # 2. Descomponer p_red en potencias de primos y generar restricciones
-        factores = factorizar(p_red)  # devuelve diccionario {primo: exponente}
-        for primo, exp in factores.items():
+        factors = factorizar(p_red)  # devuelve diccionario {primo: exponente}
+        for primo, exp in factors.items():
             mod_pi = primo ** exp
             resto_pi = c % mod_pi  # residuo de x mod primo^exp
             # Si ya existe restricción para este primo, comprobar/actualizar
@@ -586,4 +588,5 @@ def ecuacion_cuadratica(a:int,b:int,c:int,p:int)->Tuple[int,int]:
 
 
 if __name__ == "__main__":
+    print(bezout(-6,0))
     pass
