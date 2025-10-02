@@ -41,13 +41,19 @@ def es_primo(n:int)->bool: #Editado
         es_primo(4)=False
         
     """
+    #Caso especial si n = 2
+    if n == 2:
+        return True
 
-    if n < 2 or n % 2 == 0:
-        return n == 2
+    #Numeros < 1 ó pares NO son primos
+    elif n < 2 or n % 2 == 0:
+        return False
 
+    #Algoritmo principal
     else:
         for i in range(3, math.isqrt(n) + 1, 2):
-            if n % i == 0:
+            #Comprobar si i es divisor de n
+            if n % i == 0: 
                 return False
 
         return True
@@ -78,7 +84,7 @@ def lista_primos(a,b)-> List[int]: #Editada
     if a % 2 == 0:
         a += 1
 
-    # Ahora iteramos solo sobre impares
+    # Algoritmo principal: iteramos solo sobre impares
     for i in range(a, b, 2):
         if es_primo(i):
             primos.append(i)
@@ -104,48 +110,56 @@ def factorizar(n:int)->Dict[int,int]: #Editada
         factorizar(12)={2: 2, 3: 1}
         factorizar(0)={}
     """
-    if n in {0, 1, -1}: #Casos sin sin sentido
+    factores: dict[int, int] = {}
+
+    #Caso base 1
+    if n in {0, 1, -1}:
         return {}
 
     n = abs(n) #Quitamos el signo para que sea más sencillo el código
 
-    if es_primo(n): #Si es primo no se puede factorizar
+    #Caso base 2 
+    if es_primo(n):
         return {n: 1}
 
-    fac: dict[int, int] = {}
-
-    # 2
+    # Comprobar factor 2
     e = 0
-    while (n & 1) == 0: #Mientras que n es par
-        n >>= 1; e += 1 #Dividimos n por 2 y sumamos 1 a e
-    if e: fac[2] = e
+    while (n & 1) == 0:
+        n >>= 1 #equivalente a n//= 2 pero más rápido
+        e += 1
+    if e: factores[2] = e
 
-    # 3
+    # Comprobar factor 3
     e = 0
     while n % 3 == 0:
-        n //= 3; e += 1
-    if e: fac[3] = e
+        n //= 3
+        e += 1
+    if e: factores[3] = e
 
-    # 6k ± 1
+    # Comprobamos factores de la forma 6k ± 1
     i = 5
     while i * i <= n:
+        #i = 6k - 1
         e = 0
         while n % i == 0:
-            n //= i; e += 1
-        if e: fac[i] = e
+            n //= i
+            e += 1
+        if e: factores[i] = e
 
+        #i = 6k + 1
         j = i + 2
         e = 0
         while n % j == 0:
-            n //= j; e += 1
-        if e: fac[j] = e
+            n //= j
+            e += 1
+        if e: factores[j] = e
 
         i += 6
 
-    if n > 1:
-        fac[n] = fac.get(n, 0) + 1
+    if n > 1: 
+        factores[n] = factores.get(n, 0) + 1
 
-    return fac
+    return factores
 
 
 
@@ -166,36 +180,6 @@ def mcd(a:int,b:int)->int:
     #Hacemos uso del algoritmo de Euclides
     # el mcd es independiente del signo por lo que utilizamos el valor aboluto
 
-    # a, b = abs(a), abs(b)
-    # #Miramos si alguno de los argumentos es 0
-    # if a == 0:
-    #     return b
-    # if b == 0:
-    #     return a
-    
-    # factor_2a = 0
-    # factor_2b = 0
-    # while (a & 1) == 0:
-    #     a >>= 1
-    #     factor_2a += 1
-    # while (b & 1) == 0:
-    #     b >>= 1
-    #     factor_2b += 1
-    # if a > b:
-    #     a, b = b, a
-    # while a not in {0,1}:
-    #     b -= a
-    #     while (b & 1) == 0 and b != 0:
-    #         b >>= 1
-    #     if a > b:
-    #         a, b = b, a
-    # if a == 1:
-    #     return 1 << min(factor_2a, factor_2b)
-    # else:
-    #     return b << min(factor_2a,factor_2b)
-    #------------------------------------------------------------    
-    
-
     # #OPCIÓN BASICA SIN BINARIO
     # garantizar 0 < a <= b (o a=0)
     if a > b:
@@ -204,30 +188,7 @@ def mcd(a:int,b:int)->int:
     while a != 0:   # resto de dividir b por a
         b, a = a, b % a    # (a, b) -> (r, a)
     return b           # al terminar, b es el mcd
-    #-----------------------------------------------------
-    # a, b = abs(a), abs(b)
-    # if a == 0: return b
-    # if b == 0: return a
-
-    # # contar factores de 2 comunes
-    # shift = 0
-    # while ((a | b) & 1) == 0:   # ambos pares
-    #     a >>= 1
-    #     b >>= 1
-    #     shift += 1
-
-    # # quitar factores de 2 de 'a'
-    # while (a & 1) == 0:
-    #     a >>= 1
-
-    # while b != 0:
-    #     # quitar factores de 2 de 'b'
-    #     while (b & 1) == 0:
-    #         b >>= 1
-    #     if a > b:
-    #         a, b = b, a
-    #     b -= a
-    # return a << shift
+   
 
 
 
@@ -362,7 +323,18 @@ def potencia_mod_p(base:int, exp:int, p:int) -> int:
     elif p < 0:
         raise IncompatibleEquationError("El módulo no puede sr negativo")
     if base == 0 and exp == 0:
-        raise ZeroDivisionError("0^0 es una indeterminación no definida.")
+        raise ZeroDivisionError
+
+    p = abs(p) # trabajamos con módulo positivo
+
+    #Caso base
+    if p == 1: 
+        return 0
+
+    # Normaliza la base con respecto al modulo 
+    base %= p
+
+    # Exponente 0
     if exp == 0:
         raise ZeroDivisionError("0^0 es una indeterminación no definida.") if base == 0 else 1
     if p == 1:  #Cualquier número en módulo 1 es 0
@@ -380,6 +352,7 @@ def potencia_mod_p(base:int, exp:int, p:int) -> int:
   
         base_mod = inversa_mod_p(base_mod, p)
         exp = -exp
+        
     # utilizamos binary exponentiation
     res = 1
     while exp > 0:
@@ -460,8 +433,8 @@ def euler(n:int)->int:
         p, k = next(iter(fact.items()))
         return (p - 1) * pow(p, k - 1)
 
-    # Caso general, utilizamos Formula de Producto de Euler: φ(n) = n * productorio_{p|n} (1 - 1/p)
 
+    # Caso general, utilizamos Formula de Producto de Euler: φ(n) = n * productorio_{p|n} (1 - 1/p)
     res = n
     for p in fact.keys():
         res = (res // p) * (p - 1)
