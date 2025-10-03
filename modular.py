@@ -578,5 +578,5 @@ def ecuacion_cuadratica(a:int,b:int,c:int,p:int)->Tuple[int,int]:
 
 
 if __name__ == "__main__":
-    print(bezout(-6,0))
+    print(mcd_n([2,12,14]))
     pass

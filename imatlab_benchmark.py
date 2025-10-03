@@ -22,7 +22,7 @@ import imatlab
 
 #Número de repeticiones de la toma de tiempos.
 #Aumentarlo disminuye efectos aleatorios o casuales en el código, pero aumenta el coste de ejecución.
-NITERS=100
+NITERS=10
 
 def testRun(in_file:str, out_file:str):
     """ Wrapper para timeit y profile que abre los ficheros proporcionados
@@ -83,18 +83,18 @@ if __name__ == "__main__":
     #out_files=["potenciaTest_obtained.txt"]
     #in_files=["primosTest.txt","factorTest.txt","mcdTest.txt","potenciaTest.txt","invTest.txt","eulerTest.txt","sistemaTest.txt"]
     #out_files=["primosTest_obtained.txt","factorTest_obtained.txt","mcdTest_obtained.txt","potenciaTest_obtained.txt","invTest_obtained.txt","eulerTest_obtained.txt","sistemaTest_obtained.txt"]
-    # in_files=["primosTest.txt","factorTest.txt","mcdTest.txt","potenciaTest.txt",
-    #            "invTest.txt","eulerTest.txt","sistemaTest.txt","cuadraticaTest.txt"]
-    # out_files=["primosTest_obtained.txt","factorTest_obtained.txt","mcdTest_obtained.txt","potenciaTest_obtained.txt",
-    #           "invTest_obtained.txt","eulerTest_obtained.txt"]
+    in_files=["primosTest.txt","factorTest.txt","mcdTest.txt","potenciaTest.txt",
+               "invTest.txt","eulerTest.txt","sistemaTest.txt",]
+    out_files=["primosTest_obtained.txt","factorTest_obtained.txt","mcdTest_obtained.txt","potenciaTest_obtained.txt",
+              "invTest_obtained.txt","eulerTest_obtained.txt", "sistemaTest_obtained.txt"]
     #in_files=["primosTest.txt","factorTest.txt","mcdTest.txt","potenciaTest.txt",
     #            "invTest.txt","eulerTest.txt","cuadraticaTest.txt"]
     #out_files=["primosTest_out.txt","factorTest_out.txt","mcdTest_out.txt","potenciaTest_out.txt",
     #            "invTest_out.txt","eulerTest_out.txt","cuadraticaTest_out.txt"]
     #in_files=["ejemplosComandos.txt"]
     #out_files=["ejemplosSalida.txt"]
-    in_files=["mcdTest.txt"]
-    out_files=["mcdTest_out.txt"]
+    # in_files=["sistemaTest.txt"]
+    # out_files=["sistemaTest_out.txt"]
     
     #Lista de tiempos obtenidos
     runtime=[]
