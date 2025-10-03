@@ -79,14 +79,14 @@ def profile(in_file:str, out_file:str):
 if __name__ == "__main__":
     #Inicar el listado de ficheros de entrada y de salida para procesar
     #Comentar, añadir o eliminar ficheros según sea necesario.
-    in_files=["mcdTest.txt"]
-    out_files=["mcdTest_obtained.txt"]
+    #in_files=["mcdTest.txt"]
+    #out_files=["mcdTest_obtained.txt"]
     #in_files=["primosTest.txt","factorTest.txt","mcdTest.txt","potenciaTest.txt","invTest.txt","eulerTest.txt","sistemaTest.txt"]
     #out_files=["primosTest_obtained.txt","factorTest_obtained.txt","mcdTest_obtained.txt","potenciaTest_obtained.txt","invTest_obtained.txt","eulerTest_obtained.txt","sistemaTest_obtained.txt"]
-    #in_files=["primosTest.txt","factorTest.txt","mcdTest.txt","potenciaTest.txt",
-    #           "invTest.txt","eulerTest.txt","sistemaTest.txt",]
-    #out_files=["primosTest_obtained.txt","factorTest_obtained.txt","mcdTest_obtained.txt","potenciaTest_obtained.txt",
-    #          "invTest_obtained.txt","eulerTest_obtained.txt", "sistemaTest_obtained.txt"]
+    in_files=["primosTest.txt","factorTest.txt","mcdTest.txt","potenciaTest.txt",
+               "invTest.txt","eulerTest.txt","sistemaTest.txt",]
+    out_files=["primosTest_obtained.txt","factorTest_obtained.txt","mcdTest_obtained.txt","potenciaTest_obtained.txt",
+              "invTest_obtained.txt","eulerTest_obtained.txt", "sistemaTest_obtained.txt"]
     #in_files=["primosTest.txt","factorTest.txt","mcdTest.txt","potenciaTest.txt",
     #            "invTest.txt","eulerTest.txt","cuadraticaTest.txt"]
     #out_files=["primosTest_out.txt","factorTest_out.txt","mcdTest_out.txt","potenciaTest_out.txt",

@@ -186,17 +186,20 @@ def mcd(a:int,b:int)->int:
         return b
     if b == 0:
         return a
-    
+
+
     shift = 0
     while ((a | b) & 1) == 0:   #Sacamos todos los factores comunes de 2 y los almacenamos en la variable shift
         shift += 1
         a >>= 1     #Dividimos entre dos quitando el bit 0 de la derecha
         b >>= 1     #Dividimos entre dos quitando el bit 0 de la derecha
 
-    while (a & 1) == 0:     #Si a sigue teniendo factores 2 no van a estar incluidos en el mcd ya que b es impar
-        a >>= 1
-    while (b & 1) == 0:     #Si b sigue teniendo factores 2 no van a estar incluidos en el mcd ya que a es impar
-        b >>= 1
+    if (a & 1) == 0:    #Si a sigue teniendo factores 2 no van a estar incluidos en el mcd ya que b es impar
+        lowest_power_of_two = a & -a    #Sacamos la factorización de 2
+        a >>= (lowest_power_of_two.bit_length() -1)  #Calculamos los bits que tenemos que mover
+    if (b & 1) == 0:     #Si b sigue teniendo factores 2 no van a estar incluidos en el mcd ya que a es impar
+        lowest_power_of_two = b & -b
+        b >>= (lowest_power_of_two.bit_length() -1)
 
     if a > b: #garantizamos 0 <= a <= b
         a, b = b, a
