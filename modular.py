@@ -365,7 +365,7 @@ def potencia_mod_p(base:int, exp:int, p:int) -> int:
     # utilizamos binary exponentiation
     res = 1
     while exp > 0:
-        if exp & 1:                 # si el primer bit del exponente es 1
+        if exp & 1:                 # si el bit de la derecha es 1
             res = (res * base) % p  #hacemos el módulo ya que se mantienen las propiedades (mod(ab) = mod(a)*mod(b))
         base = (base * base) % p  # vamos aumentando la base con cada bit
         exp >>= 1                   # siguiente bit del exponente
