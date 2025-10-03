@@ -74,11 +74,11 @@ def lista_primos(a,b)-> List[int]: #Editada
     Examples:
         lista_primos(1,11)=[2,3,5,7]
     """
-    primos = []
+    primes = []
 
     # Caso especial: si el intervalo incluye el 2
     if a <= 2 < b:
-        primos.append(2)
+        primes.append(2)
 
     # Ajustamos 'a' para empezar desde el primer impar >= a
     if a % 2 == 0:
@@ -87,9 +87,9 @@ def lista_primos(a,b)-> List[int]: #Editada
     # Algoritmo principal: iteramos solo sobre impares
     for i in range(a, b, 2):
         if es_primo(i):
-            primos.append(i)
+            primes.append(i)
 
-    return primos
+    return primes
 
 
 
@@ -378,7 +378,7 @@ def inversa_mod_p(n:int,p:int)->int:
         raise ZeroDivisionError
     p0 = p 
     x0, x1 = 0, 1
-    n = n % p  # disminuir n si es más grande que el módulo
+    n %= p  # disminuir n si es más grande que el módulo
 
     while n > 1:
         if p == 0:
@@ -392,6 +392,17 @@ def inversa_mod_p(n:int,p:int)->int:
         raise ZeroDivisionError("No existe inversa: n y p no son coprimos.")
 
     return x1 % p0
+
+def inversa_sin_verificacion(n:int, p:int) -> int:
+    x0, x1 = 0, 1
+    p0 = p
+    n %= p
+    while n > 1:
+        q = n // p
+        n, p = p, n % p
+        x0, x1 = x1 -q * x0, x0
+    return x1 % p0
+
 
 
 def euler(n:int)->int:
@@ -425,7 +436,6 @@ def euler(n:int)->int:
         p, k = next(iter(fact.items()))
         return (p - 1) * pow(p, k - 1)
 
-
     # Caso general, utilizamos Formula de Producto de Euler: φ(n) = n * productorio_{p|n} (1 - 1/p)
     res = n
     for p in fact.keys():
@@ -456,16 +466,15 @@ def legendre(n:int,p:int)->int:
         legendre(10,5)=0
     """
     if p in {0,2}: #el módulo no puede ser 0 ni un primo par 
-        raise ZeroDivisionError
+        raise ZeroDivisionError("En módulo no puede ser 0 ni 2")
     if not es_primo(p): 
         raise IncompatibleEquationError("El módulo escogido no es primo")
- 
-    
-    # Normalizar n al rango [0, p-1]
+   
+    # Normalizamos n al rango [0, p-1]
     n %= p
 
-    if n == 0:
-        return 0
+    if n == 0: 
+        return 0 #n es múltiplo de p
     # Criterio de Euler: (an/p) ≡ n^{(p-1)/2} (mod p)
     r = potencia_mod_p(n, (p - 1) // 2, p)
 
@@ -497,59 +506,52 @@ def resolver_sistema_congruencias(alist:List[int], blist:List[int], plist:List[i
         resolverSistema([2;4;6])=(2,3)
         resolverSistema([1;1;3],[4;7;11])=(10,33)        
     """
-    restricciones = {}  # clave: primo, valor: (exponente_max, resto_mod_p^exponente_max)
+    restrictions = {}  #clave: primo, valor: (exponente_max, resto_mod_p^exponente_max)
     
     for a, b, p in zip(alist, blist, plist):
-        # 1. Simplificar la congruencia individual a*x ≡ b (mod p) utilizando mcd
+
         g = mcd(a, p)
-        if b % g != 0:
+        if b % g != 0:  #No existe x que al multiplicar por a de resto b en múdulo p
             raise IncompatibleEquationError("Sistema incompatible")
-        a_red = a // g
-        b_red = b // g
-        p_red = p // g
-        # Obtener solución particular x ≡ c (mod p_red)
-        d, x_bez, y_bez = bezout(a_red, p_red)
-        inv_a = x_bez % p_red
-        c = (b_red * inv_a) % p_red  # este es el resto c_i que x debe cumplir mod p_red
-        # 2. Descomponer p_red en potencias de primos y generar restricciones
-        factors = factorizar(p_red)  # devuelve diccionario {primo: exponente}
-        for primo, exp in factors.items():
-            mod_pi = primo ** exp
-            resto_pi = c % mod_pi  # residuo de x mod primo^exp
-            # Si ya existe restricción para este primo, comprobar/actualizar
-            if primo in restricciones:
-                exp_actual, resto_actual = restricciones[primo]
-                if exp > exp_actual:
-                    # Nueva restricción más fuerte (exponente mayor)
-                    if resto_pi % (primo ** exp_actual) != resto_actual:
-                        raise IncompatibleEquationError("Sistema incompatible")
-                    restricciones[primo] = (exp, resto_pi)
-                elif exp == exp_actual:
-                    # Misma potencia: deben coincidir los restos
-                    if resto_pi != resto_actual:
-                        raise IncompatibleEquationError("Sistema incompatible")
-                    # (Si son iguales, la restricción es redundante y la ignoramos)
+        #Utilizamos el teorema de simplificación de factores comunes ka ≡ kb (mód km) <-> a ≡ b (mód m)
+        a_simp = a // g
+        b_simp = b // g
+        p_simp = p // g
+
+        inv_a = inversa_mod_p(a_simp, p_simp)   #Sacamos la inversa de a para despejar x
+        c = (b_simp * inv_a) % p_simp   #Obtenemos el resto que tiene que dejar x al dividirlo por p_simp
+
+        factors = factorizar(p_simp)    #descomponemos el módulo en factores primos
+        for prime, exp in factors.items():  #recorremos cada primo con su exponente
+            mod_prime = pow(prime,exp)
+            rest_prime = c % mod_prime  #Calculamos el resto con el módulo del primo
+
+            if prime in restrictions:  #Si el primo ya esta en el dic comprobamos la compatibilidad del sistema
+
+                exp_actual, rest_actual = restrictions[prime]
+                if exp > exp_actual and rest_prime % (pow(prime,exp_actual)) == rest_actual:    #Si el exponente es mayor que el anterior comprobamos congruencia entre restos
+                    restrictions[prime] = (exp, rest_prime)   #Actualizamos el exponente y resto
+                elif exp == exp_actual and rest_prime == rest_actual:   #Si los exponentes son iguales comprobamos que los restos también lo sean
+                    pass
+                elif rest_actual % (pow(prime, exp)) == rest_prime:     #Cuando el exponente es menor que el anterior tambien comprobamos congruencia entre restos
+                    pass
                 else:
-                    # Restricción más débil (menor exponente), comprobar consistencia
-                    if resto_actual % (primo ** exp) != resto_pi:
-                        raise IncompatibleEquationError("Sistema incompatible")
-                    # (Si coincide, ignoramos la más débil pues la fuerte ya la implica)
-            else:
-                restricciones[primo] = (exp, resto_pi)
+                    raise IncompatibleEquationError("Sistema incompatible")     #Si no se da ninguno de los casos anteriores el sistema es incompatible
+                
+            else:   #Si no estaba el primo en el diccionario lo añadimos con su exponente y resto
+                restrictions[prime] = (exp, rest_prime)
     
-    # 3. Ahora todas las restricciones tienen módulos coprimos (potencias de distintos primos)
-    r, M = 0, 1
-    for primo, (exp, resto) in restricciones.items():
-        mod_pi = primo ** exp
-        # Combinar x ≡ r (mod M) con x ≡ resto (mod mod_pi) usando CRT estándar (M y mod_pi coprimos)
-        d, x_bez, y_bez = bezout(M, mod_pi)
-        inv_M = x_bez % mod_pi  # inversa de M mod mod_pi
-        # Calcular incremento t para cumplir la nueva restricción
-        t = ((resto - r) * inv_M) % mod_pi
-        r = r + t * M
-        M *= mod_pi  # actualizar el módulo total al nuevo mcm (producto pues son coprimos)
-        r %= M      # normalizar el resultado
-    return (r % M, M)
+    #Una vez hemos factorizado todos los módulos nos queda un sistema con módulos coprimos dos a dos. Por lo que aplicamos el teorema chino del resto
+    final_rest, final_module = 0, 1 
+    for prime, (exp, rest) in restrictions.items():
+
+        mod_prime = pow(prime, exp)
+        inv_final_module = inversa_sin_verificacion(final_module, mod_prime) #Como el módulo es la potencia de un número primo distinto de los agrupados en final_module son coprimos
+        t = ((rest - final_rest) * inv_final_module) % mod_prime #Calculamos el incremento
+        final_rest = final_rest + t * final_module
+        final_module *= mod_prime  # Multiplicamos los módulos ya que al ser coprimos el mcm de ellos es su multiplicación
+        final_rest %= final_module      # normalizamos el resultado
+    return (final_rest % final_module, final_module)
 
 def ecuacion_cuadratica(a:int,b:int,c:int,p:int)->Tuple[int,int]:
     """ Halla, si es posible, las dos posibles soluciones de la ecuación cuadrática ax^2+bx+c=0 (mod p).
