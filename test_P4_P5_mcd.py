@@ -5,7 +5,8 @@ from test_imatlab import try_command
 
 @pytest.mark.parametrize("a,b,salida_esperada",[
     (10,15,5),
-    (1,20,1)    
+    (1,20,1),
+    (20,-5,5)    
 ])
 def test_mcd_basico(a: int, b:int, salida_esperada: int) -> None:
     assert(modular.mcd(a,b)==salida_esperada)
@@ -22,7 +23,8 @@ def test_bezout_basico(a: int, b:int, mcd_esperado: int) -> None:
 
 @pytest.mark.parametrize("nlist,salida_esperada",[
     ([4,10,14],2),
-    ([1,2,3,4,5], 1)    
+    ([1,2,3,4,5], 1), 
+    ([0,-5], 5)   
 ])
 def test_mcd_n_basico(nlist: List[int], salida_esperada: int) -> None:
     assert(modular.mcd_n(nlist)==salida_esperada)
