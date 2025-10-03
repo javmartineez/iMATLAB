@@ -13,7 +13,7 @@ Descripción:
 Sistema interactivo IMAT-LAB de resolución de ecuaciones en aritmética modular.
 
 Interfaz de acceso interactivo o por lotes a la librería modular.py. Si este script se ejecuta sin par´ametros,
-lanzar´a la interfaz de usuario para el modo interactivo.
+lanzará la interfaz de usuario para el modo interactivo.
 """
 
 import re

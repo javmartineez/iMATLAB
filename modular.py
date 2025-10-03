@@ -598,7 +598,3 @@ def ecuacion_cuadratica(a:int,b:int,c:int,p:int)->Tuple[int,int]:
     #Opcional
     pass
 
-
-if __name__ == "__main__":
-    print(mcd_n([2,12,14]))
-    pass
