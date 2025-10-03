@@ -341,18 +341,19 @@ def potencia_mod_p(base:int, exp:int, p:int) -> int:
         return 0  
     
     base_mod = base % p #Reducimos la base por si es mayor que el p
+
     if base_mod == 0: #Caso en el que la base es coprimo con p
+        if exp < 0:
+            raise ZeroDivisionError("No existe inversa modular de 0.")
+        return 0
+        
 
-        if exp > 0:
-            return 0
-        raise ZeroDivisionError("No existe inversa modular de 0.")
-
-    
     if exp < 0: # si exp es negativo sustituimos base por su inversa modular
   
         base_mod = inversa_mod_p(base_mod, p)
         exp = -exp
         
+
     # utilizamos binary exponentiation
     res = 1
     while exp > 0:
@@ -390,13 +391,13 @@ def inversa_mod_p(n:int,p:int)->int:
 
     while n > 1:
         if p == 0:
-            raise ZeroDivisionError(f"No existe inversa: gcd != 1")
+            raise ZeroDivisionError(f"No existe inversa: mcd(n,p) != 1")
 
         q = n // p  # cociente
         n, p = p, n % p
         x0, x1 = x1 - q * x0, x0
 
-    if n != 1:  # gcd(n,p) != 1 → no son coprimos
+    if n != 1:  # mcd(n,p) != 1 → no son coprimos
         raise ZeroDivisionError("No existe inversa: n y p no son coprimos.")
 
     return x1 % p0
