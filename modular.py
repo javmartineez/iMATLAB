@@ -331,28 +331,18 @@ def potencia_mod_p(base:int, exp:int, p:int) -> int:
     """
     if p == 0:
         raise ZeroDivisionError("El módulo no puede ser 0.")
-    elif p < 0:
+    if p < 0:
         raise IncompatibleEquationError("El módulo no puede ser negativo")
     if base == 0 and exp == 0:
         raise ZeroDivisionError("Indeterminación 0^0 ")
-
-    p = abs(p) # trabajamos con módulo positivo
-
-    #Caso base
-    if p == 0:
-        raise ZeroDivisionError("El módulo no puede ser 0.")
-    elif p < 0:
-        raise IncompatibleEquationError("El módulo no puede ser negativo")
-    if base == 0 and exp == 0:
-        raise ZeroDivisionError("Indeterminación 0^0")
     
     if p == 1:  #Cualquier número en módulo 1 es 0
         return 0  
-
-    
+        
     if exp < 0: # si exp es negativo sustituimos base por su inversa modular
         base = inversa_mod_p(base, p)
         exp = -exp
+    
     # Normaliza la base con respecto al modulo 
     base %= p
     # utilizamos binary exponentiation
