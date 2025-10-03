@@ -382,13 +382,13 @@ def inversa_mod_p(n:int,p:int)->int:
 
     while n > 1:
         if p == 0:
-            raise ZeroDivisionError(f"No existe inversa: gcd != 1")
+            raise ZeroDivisionError(f"No existe inversa: mcd(n,p) != 1")
 
         q = n // p  # cociente
         n, p = p, n % p
         x0, x1 = x1 - q * x0, x0
 
-    if n != 1:  # gcd(n,p) != 1 → no son coprimos
+    if n != 1:  # mcd(n,p) != 1 → no son coprimos
         raise ZeroDivisionError("No existe inversa: n y p no son coprimos.")
 
     return x1 % p0
