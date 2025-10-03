@@ -181,12 +181,29 @@ def mcd(a:int,b:int)->int:
     # el mcd es independiente del signo por lo que utilizamos el valor aboluto
     a = abs(a)  #quitamos signo
     b = abs(b)  #quitamos signo
+    
+    if a == 0:
+        return b
+    if b == 0:
+        return a
+    
+    shift = 0
+    while ((a | b) & 1) == 0:   #Sacamos todos los factores comunes de 2 y los almacenamos en la variable shift
+        shift += 1
+        a >>= 1     #Dividimos entre dos quitando el bit 0 de la derecha
+        b >>= 1     #Dividimos entre dos quitando el bit 0 de la derecha
+
+    while (a & 1) == 0:     #Si a sigue teniendo factores 2 no van a estar incluidos en el mcd ya que b es impar
+        a >>= 1
+    while (b & 1) == 0:     #Si b sigue teniendo factores 2 no van a estar incluidos en el mcd ya que a es impar
+        b >>= 1
+
     if a > b: #garantizamos 0 <= a <= b
         a, b = b, a
 
     while a != 0:   # resto de dividir b por a
         b, a = a, b % a    # (a, b) -> (r, a)
-    return b           # al terminar, b es el mcd
+    return b << shift        # al terminar, b es el mcd
 
    
 
