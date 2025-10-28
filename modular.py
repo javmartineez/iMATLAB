@@ -598,3 +598,33 @@ def ecuacion_cuadratica(a:int,b:int,c:int,p:int)->Tuple[int,int]:
     #Opcional
     pass
 
+
+def raiz_mod_p(n:int,p:int)->int:
+    """ Encuentra, si existe, una raíz cuadrada para un entero n módulo un número primo p.
+
+    Args:
+        n (int): Entero del que se desea hallar la raíz.
+        p (int): Módulo. Se asume que es un número primo.
+    
+    Returns:
+        int: Entero x entre 0 y p-1 tal que x^2 = n (mod p).
+
+    Raises:
+        IncompatibleEquationError: Si no es posible hallar dicha raíz.
+
+    Examples:
+        raiz_mod_p(2,7)=3
+    """
+    #Opcional
+    # Error módulo 0
+    if p == 0:
+        raise ZeroDivisionError("módulo 0")
+    # Normalizamos n a [0,p-1]
+    n = n % p
+    # Pureba desde 0 hasta p-1
+    for x in range(p):
+        if (x * x) % p == n:
+            # Se devuelve la primera que se halla
+            return x
+    # Si no, no exite la raíz
+    raise IncompatibleEquationError("no existe raíz")
