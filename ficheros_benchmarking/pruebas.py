@@ -1,22 +1,22 @@
 def mcd(a:int,b:int)->int:
-    """ Calcula el máximo común divisor de dos enteros a y b.
+    """ Computes the greatest common divisor of two integers a and b.
     Args:
-        a (int): Primer entero.
-        b (int): Segundo entero.
-    
+        a (int): First integer.
+        b (int): Second integer.
+
     Returns:
-        int: devuelve el máximo común divisor de a y b
+        int: the greatest common divisor of a and b
 
     Raises: None
 
     Examples:
         mcd(10,15)=5
     """
-    #Hacemos uso del algoritmo de Euclides
-    # el mcd es independiente del signo por lo que utilizamos el valor aboluto
+    #We use Euclid's algorithm
+    # the gcd does not depend on the sign, so we use the absolute value
 
     a, b = abs(a), abs(b)
-    #Miramos si alguno de los argumentos es 0
+    #Check whether either argument is 0
     if a == 0:
         return b
     if b == 0:
@@ -47,9 +47,9 @@ def mcd_orig(a, b):
     if a > b:
         a, b = b, a
 
-    while a != 0:   # resto de dividir b por a
+    while a != 0:   # remainder of dividing b by a
         b, a = a, b % a    # (a, b) -> (r, a)
-    return b           # al terminar, b es el mcd
+    return b           # at the end, b is the gcd
 
 if __name__ == "__main__":
     a = 2

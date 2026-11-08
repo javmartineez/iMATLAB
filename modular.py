@@ -1,16 +1,16 @@
 """
 modular.py
 
-Matemática Discreta - IMAT
+Discrete Mathematics - IMAT
 ICAI, Universidad Pontificia Comillas
 
-Grupo: GP09B
-Integrantes:
+Group: GP09B
+Members:
     - Javier Mochales López
     - Javier Martínez Berenguer 
 
-Descripción:
-Librería para la realización de cálculos y resolución de problemas de aritmética modular.
+Description:
+Library for performing calculations and solving modular arithmetic problems.
 """
 
 from typing import Tuple, List, Dict
@@ -24,15 +24,15 @@ class ArgumentError(Exception):
     pass
 
 
-def es_primo(n:int)->bool: #Editado
-    """ Reciba un entero n y devuelva verdadero si es un número primo y falso en caso contrario
+def es_primo(n:int)->bool: #Edited
+    """ Receives an integer n and returns True if it is a prime number and False otherwise
 
     Args:
-        n (int): Entero
+        n (int): Integer
     
     Returns:
-        true si el entero es un número primo.
-        false en caso contrario.
+        True if the integer is a prime number.
+        False otherwise.
 
     Raises: None
     
@@ -41,33 +41,33 @@ def es_primo(n:int)->bool: #Editado
         es_primo(4)=False
         
     """
-    #Caso especial si n = 2
+    #Special case if n = 2
     if n == 2:
         return True
 
-    #Numeros < 1 ó pares NO son primos
+    #Numbers < 2 or even numbers are NOT prime
     elif n < 2 or n % 2 == 0:
         return False
 
-    #Algoritmo principal
+    #Main algorithm
     else:
         for i in range(3, math.isqrt(n) + 1, 2):
-            #Comprobar si i es divisor de n
+            #Check whether i divides n
             if n % i == 0: 
                 return False
 
         return True
 
 
-def lista_primos(a,b)-> List[int]: #Editada
-    """ Recibe dos enteros a y b y devuelva la lista de números primos en el intervalo [a, b)
+def lista_primos(a,b)-> List[int]: #Edited
+    """ Receives two integers a and b and returns the list of prime numbers in the interval [a, b)
 
     Args:
-        a (int): Elemento inicial del intervalo (incluido)
-        b (int): Elemento final del intervalo (no incluido)
+        a (int): First element of the interval (included)
+        b (int): Last element of the interval (not included)
     
     Returns:
-        List[int]: lista ordenada de primos mayores o iguales que a y menores que b.
+        List[int]: sorted list of primes greater than or equal to a and less than b.
 
     Raises: None
     
@@ -76,15 +76,15 @@ def lista_primos(a,b)-> List[int]: #Editada
     """
     primes = []
 
-    # Caso especial: si el intervalo incluye el 2
+    # Special case: the interval includes 2
     if a <= 2 < b:
         primes.append(2)
 
-    # Ajustamos 'a' para empezar desde el primer impar >= a
+    # Adjust 'a' to start from the first odd number >= a
     if a % 2 == 0:
         a += 1
 
-    # Algoritmo principal: iteramos solo sobre impares
+    # Main algorithm: iterate over odd numbers only
     for i in range(a, b, 2):
         if es_primo(i):
             primes.append(i)
@@ -94,15 +94,15 @@ def lista_primos(a,b)-> List[int]: #Editada
 
 
 
-def factorizar(n:int)->Dict[int,int]: #Editada
-    """ Recibe  un entero n y devuelve un diccionario cuyas claves son los primos que dividen a n y sus valores los
-    correspondientes exponentes en la descomposición en producto de factores primos de n.
+def factorizar(n:int)->Dict[int,int]: #Edited
+    """ Receives an integer n and returns a dictionary whose keys are the primes dividing n and whose values are the
+    corresponding exponents in the prime factorisation of n.
     Args:
-        n (int): Entero que se desea factorizar.
+        n (int): Integer to factorise.
     
     Returns:
-        Dict[int,int]: Diccionario en el que las claves son primos positivos p_i que dividen a n y, para cada p_i,
-            su valor asociado es el máximo exponente e_i tal que p_i^(e_i) divide a n. Si n=0, devuelve un diccionario vacío.
+        Dict[int,int]: Dictionary whose keys are the positive primes p_i dividing n and, for each p_i,
+            its associated value is the largest exponent e_i such that p_i^(e_i) divides n. If n=0, returns an empty dictionary.
 
     Raises: None
 
@@ -112,31 +112,31 @@ def factorizar(n:int)->Dict[int,int]: #Editada
     """
     factors: dict[int, int] = {}
 
-    #Caso base 1
+    #Base case 1
     if n in {0, 1, -1}:
         return {}
 
-    n = abs(n) #Quitamos el signo para que sea más sencillo el código
+    n = abs(n) #Drop the sign to keep the code simpler
 
-    #Caso base 2 
+    #Base case 2
     if es_primo(n):
         return {n: 1}
 
-    # Comprobar factor 2
+    # Check factor 2
     e = 0
     while (n & 1) == 0:
-        n >>= 1 #equivalente a n//= 2 pero más rápido
+        n >>= 1 #equivalent to n//= 2 but faster
         e += 1
     if e: factors[2] = e
 
-    # Comprobar factor 3
+    # Check factor 3
     e = 0
     while n % 3 == 0:
         n //= 3
         e += 1
     if e: factors[3] = e
 
-    # Comprobamos factores de la forma 6k ± 1
+    # Check factors of the form 6k ± 1
     i = 5
     while i * i <= n:
         #i = 6k - 1
@@ -164,23 +164,23 @@ def factorizar(n:int)->Dict[int,int]: #Editada
 
 
 def mcd(a:int,b:int)->int:
-    """ Calcula el máximo común divisor de dos enteros a y b.
+    """ Computes the greatest common divisor of two integers a and b.
     Args:
-        a (int): Primer entero.
-        b (int): Segundo entero.
+        a (int): First integer.
+        b (int): Second integer.
     
     Returns:
-        int: devuelve el máximo común divisor de a y b
+        int: the greatest common divisor of a and b
 
     Raises: None
 
     Examples:
         mcd(10,15)=5
     """
-    #Hacemos uso del algoritmo de Euclides
-    # el mcd es independiente del signo por lo que utilizamos el valor aboluto
-    a = abs(a)  #quitamos signo
-    b = abs(b)  #quitamos signo
+    #We use Euclid's algorithm
+    # the gcd does not depend on the sign, so we use the absolute value
+    a = abs(a)  #drop the sign
+    b = abs(b)  #drop the sign
     
     if a == 0:
         return b
@@ -189,24 +189,24 @@ def mcd(a:int,b:int)->int:
 
 
     shift = 0
-    while ((a | b) & 1) == 0:   #Sacamos todos los factores comunes de 2 y los almacenamos en la variable shift
+    while ((a | b) & 1) == 0:   #Remove all common factors of 2 and store them in the shift variable
         shift += 1
-        a >>= 1     #Dividimos entre dos quitando el bit 0 de la derecha
-        b >>= 1     #Dividimos entre dos quitando el bit 0 de la derecha
+        a >>= 1     #Divide by two by dropping the rightmost bit
+        b >>= 1     #Divide by two by dropping the rightmost bit
 
-    if (a & 1) == 0:    #Si a sigue teniendo factores 2 no van a estar incluidos en el mcd ya que b es impar
-        lowest_power_of_two = a & -a    #Sacamos la factorización de 2
-        a >>= (lowest_power_of_two.bit_length() -1)  #Calculamos los bits que tenemos que mover
-    if (b & 1) == 0:     #Si b sigue teniendo factores 2 no van a estar incluidos en el mcd ya que a es impar
+    if (a & 1) == 0:    #If a still has factors of 2 they are not part of the gcd since b is odd
+        lowest_power_of_two = a & -a    #Extract the power of 2
+        a >>= (lowest_power_of_two.bit_length() -1)  #Compute how many bits to shift
+    if (b & 1) == 0:     #If b still has factors of 2 they are not part of the gcd since a is odd
         lowest_power_of_two = b & -b
         b >>= (lowest_power_of_two.bit_length() -1)
 
-    if a > b: #garantizamos 0 <= a <= b
+    if a > b: #ensure 0 <= a <= b
         a, b = b, a
 
-    while a != 0:   # resto de dividir b por a
+    while a != 0:   # remainder of dividing b by a
         b, a = a, b % a    # (a, b) -> (r, a)
-    return b << shift        # al terminar, b es el mcd
+    return b << shift        # at the end, b is the gcd
 
    
 
@@ -214,24 +214,24 @@ def mcd(a:int,b:int)->int:
 
 
 def bezout(a:int, b:int) -> Tuple[int,int,int]:
-    """ Calcula el máximo común divisor d de dos enteros a y b junto con dos enteros x e y tales que
+    """ Computes the greatest common divisor d of two integers a and b together with two integers x and y such that
             d=ax+by
 
     Args:
-        a (int): Primer entero.
-        b (int): Segundo entero.
+        a (int): First integer.
+        b (int): Second integer.
     
     Returns: (d,x,y)
-        d (int): Máximo común divisor.
-        x (int): Coeficiente de a.
-        y (int): Coeficiente de b.
+        d (int): Greatest common divisor.
+        x (int): Coefficient of a.
+        y (int): Coefficient of b.
 
     Raises: None
 
     Examples:
         bezout(6,10)=(2,2,-1)
     """
-    #Guardamos los signos para la solución
+    #Store the signs for the solution
     sign_a = -1 if a < 0 else 1
     sign_b = -1 if b < 0 else 1
     a, b = abs(a), abs(b)
@@ -251,40 +251,40 @@ def bezout(a:int, b:int) -> Tuple[int,int,int]:
 
 
 def mcd_n(nlist:List[int])->int:
-    """ Dados una lista de enteros, devuelve el máximo divisor común a todos ellos.
+    """ Given a list of integers, returns the greatest divisor common to all of them.
     Args:
-        nList (List[int]): Lista de enteros.        
+        nList (List[int]): List of integers.
     
     Returns:
-        int: devuelve el máximo entero que divide a todos los enteros de la lista.
+        int: the largest integer that divides every integer in the list.
 
     Raises: None
 
     Examples:
         mcd([4,10,14])=2
     """
-    #Opcional
+    #Optional
     g = 0
-    for x in nlist:                 # O(n) llamadas a mcd; no se modifica la lista
+    for x in nlist:                 # O(n) calls to mcd; the list is not modified
         g = mcd(g, x)
-        if g == 1:                 # corto-circuito útil: no puede bajar de 1
+        if g == 1:                 # useful short-circuit: it cannot go below 1
             return 1
         
     return g
 
 
 def bezout_n(nlist:List[int])->Tuple[int,List[int]]:
-    #Opcional
-    """ Dada una lista de enteros [a_1,...,a_n], devuelve el máximo divisor común d a todos ellos y una
-    lista de coeficientes [x_1,...,x_n] tal que
+    #Optional
+    """ Given a list of integers [a_1,...,a_n], returns the greatest divisor d common to all of them and a
+    list of coefficients [x_1,...,x_n] such that
         d=a_1*x_1+...a_n*x_n
 
     Args:
-        nList (List[int]): Lista de enteros.        
+        nList (List[int]): List of integers.
     
     Returns: (d,X)
-        d (int): Máximo entero que divide a todos los enteros de la lista.
-        X (List[int]): Lista de coeficientes [x_1,...,x_n].
+        d (int): Largest integer that divides every integer in the list.
+        X (List[int]): List of coefficients [x_1,...,x_n].
 
     Raises: None
 
@@ -297,14 +297,14 @@ def bezout_n(nlist:List[int])->Tuple[int,List[int]]:
     if len(nlist) == 1:
         return abs(nlist[0]), [1 if nlist[0] >= 0 else -1]
 
-    # Empezamos con los dos primeros
+    # Start with the first two
     d, x, y = bezout(nlist[0], nlist[1])
     coefs = [x, y]
 
-    # Vamos incorporando uno a uno
+    # Add the rest one by one
     for i in range(2, len(nlist)):
         a = nlist[i]
-        d2, u, v = bezout(d, a) #Hacemos el bezout con el mcd anterior y el nuevo argumentos
+        d2, u, v = bezout(d, a) #Apply Bezout to the previous gcd and the new argument
         coefs = [c * u for c in coefs]
         coefs.append(v)
         d = d2
@@ -313,13 +313,13 @@ def bezout_n(nlist:List[int])->Tuple[int,List[int]]:
 
 
 def coprimos(n:int,m:int)->bool:
-    """ Determina si dos enteros son coprimos.
+    """ Determines whether two integers are coprime.
     Args:
-        a (int): Primer entero.
-        b (int): Segundo entero.
+        a (int): First integer.
+        b (int): Second integer.
     
     Returns:
-        bool: Verdadero si son coprimos y falso si no.
+        bool: True if they are coprime and False otherwise.
 
     Raises: None
 
@@ -332,84 +332,84 @@ def coprimos(n:int,m:int)->bool:
 
 
 def potencia_mod_p(base:int, exp:int, p:int) -> int:
-    """ Calcula potencias módulo p.
+    """ Computes powers modulo p.
 
     Args:
-        base (int): Base de la potencia.
-        exp (int): Exponente al que se eleva la base.
-        p (int): Módulo.
+        base (int): Base of the power.
+        exp (int): Exponent the base is raised to.
+        p (int): Modulus.
     
     Returns:
-        int: Resto de dividir base^exp módulo p.
+        int: Remainder of base^exp modulo p.
 
     Raises:
-        ZeroDivisionError: Si el módulo es 0 o si la base y el exponente
-        son ambos 0 al mismo tiempo.
+        ZeroDivisionError: If the modulus is 0 or if the base and the exponent
+        are both 0 at the same time.
 
     Examples:
         potencia_mod_p(2,3,7)=1
     """
     if p == 0:
-        raise ZeroDivisionError("El módulo no puede ser 0.")
+        raise ZeroDivisionError("The modulus cannot be 0.")
     if p < 0:
-        raise IncompatibleEquationError("El módulo no puede ser negativo")
+        raise IncompatibleEquationError("The modulus cannot be negative")
     if base == 0 and exp == 0:
-        raise ZeroDivisionError("Indeterminación 0^0 ")
+        raise ZeroDivisionError("Indeterminate form 0^0 ")
     
-    if p == 1:  #Cualquier número en módulo 1 es 0
+    if p == 1:  #Any number modulo 1 is 0
         return 0  
         
-    if exp < 0: # si exp es negativo sustituimos base por su inversa modular
+    if exp < 0: # if exp is negative, replace base with its modular inverse
         base = inversa_mod_p(base, p)
         exp = -exp
     
-    # Normaliza la base con respecto al modulo 
+    # Normalise the base with respect to the modulus
     base %= p
-    # utilizamos binary exponentiation
+    # we use binary exponentiation
     res = 1
     while exp > 0:
-        if exp & 1:                 # si el bit de la derecha es 1
-            res = (res * base) % p  #hacemos el módulo ya que se mantienen las propiedades (mod(ab) = mod(a)*mod(b))
-        base = (base * base) % p  # vamos aumentando la base con cada bit
-        exp >>= 1                   # siguiente bit del exponente
+        if exp & 1:                 # if the rightmost bit is 1
+            res = (res * base) % p  #reduce modulo p since the properties are preserved (mod(ab) = mod(a)*mod(b))
+        base = (base * base) % p  # square the base for each bit
+        exp >>= 1                   # next bit of the exponent
     return res
 
     
     
 
 def inversa_mod_p(n:int,p:int)->int:
-    """ Calcula la inversa de un número n módulo p.
+    """ Computes the inverse of a number n modulo p.
 
     Args:
-        n (int): Número que se desea invertir
-        p (int): Módulo.
+        n (int): Number to invert
+        p (int): Modulus.
     
     Returns:
-        int: Entero x entre 0 y p-1 tal que n*x es congruente con 1 módulo p.
+        int: Integer x between 0 and p-1 such that n*x is congruent to 1 modulo p.
 
     Raises:
-        ZeroDivisionError: Si el módulo es 0 o si n no es invertible módulo p.
+        ZeroDivisionError: If the modulus is 0 or if n is not invertible modulo p.
     
     Examples:
         inversa_mod_p(2,7)=4
     """
 
-    if p == 0: # Comprobamos módulo 0
+    if p == 0: # Check for modulus 0
         raise ZeroDivisionError
     p0 = p 
     x0, x1 = 0, 1
-    n %= p  # disminuir n si es más grande que el módulo
+    n %= p  # reduce n if it is larger than the modulus
 
     while n > 1:
         if p == 0:
-            raise ZeroDivisionError(f"No existe inversa: mcd(n,p) != 1")
+            raise ZeroDivisionError(f"No inverse exists: gcd(n,p) != 1")
 
         q = n // p  # cociente
         n, p = p, n % p
         x0, x1 = x1 - q * x0, x0
 
     if n != 1:  # mcd(n,p) != 1 → no son coprimos
-        raise ZeroDivisionError("No existe inversa: n y p no son coprimos.")
+        raise ZeroDivisionError("No inverse exists: n and p are not coprime.")
 
     return x1 % p0
 
@@ -426,14 +426,14 @@ def inversa_sin_verificacion(n:int, p:int) -> int:
 
 
 def euler(n:int)->int:
-    """ Calcula la función phi de Euler de un entero positivo n, es decir, cuenta cúantos enteros positivos
-    menores que n son coprimos con n.
+    """ Computes Euler's phi function of a positive integer n, i.e. counts how many positive integers
+    less than n are coprime with n.
 
     Args:
-        n (int): Número entero positivo.
+        n (int): Positive integer.
     
     Returns:
-        int: Función phi de Euler de n.
+        int: Euler's phi function of n.
 
     Raises: None
 
@@ -443,20 +443,20 @@ def euler(n:int)->int:
     """
 
     if n < 1:
-        raise IncompatibleEquationError("φ(n) está definida para n >= 1")
+        raise IncompatibleEquationError("φ(n) is defined for n >= 1")
     if n == 1:
         return 1
     if es_primo(n):
         return n - 1
 
-    fact = factorizar(n)          # dict {p: e} con p primo y e >= 1
+    fact = factorizar(n)          # dict {p: e} with p prime and e >= 1
 
-    # Caso potencia de primo: φ(p^k) = (p-1)p^{k-1}
+    # Prime power case: φ(p^k) = (p-1)p^{k-1}
     if len(fact) == 1:
         p, k = next(iter(fact.items()))
         return (p - 1) * pow(p, k - 1)
 
-    # Caso general, utilizamos Formula de Producto de Euler: φ(n) = n * productorio_{p|n} (1 - 1/p)
+    # General case, using Euler's product formula: φ(n) = n * product_{p|n} (1 - 1/p)
     res = n
     for p in fact.keys():
         res = (res // p) * (p - 1)
@@ -465,166 +465,166 @@ def euler(n:int)->int:
 
 
 def legendre(n:int,p:int)->int:
-    """ Dado un entero n y un número primo p, calcula el símbolo de Legendre de n módulo p.
+    """ Given an integer n and a prime number p, computes the Legendre symbol of n modulo p.
 
     Args:
-        n (int): Número entero.
-        p (int): Número primo.
+        n (int): Integer.
+        p (int): Prime number.
     
     Returns:
-        int: Símbolo de Legendre de Euler de n módulo p:
-            0 si es múltiplo de p
-            1 si es un cuadrado perfecto (distinto de 0), módulo p
-            -1 en caso contrario.
+        int: Legendre symbol of n modulo p:
+            0 if it is a multiple of p
+            1 if it is a perfect square (other than 0) modulo p
+            -1 otherwise.
 
     Raises:
-        ZeroDivisionError: Si el módulo p es 0.
+        ZeroDivisionError: If the modulus p is 0.
 
     Examples:
         legendre(2,5)=-1
         legendre(2,7)=1
         legendre(10,5)=0
     """
-    if p in {0,2}: #el módulo no puede ser 0 ni un primo par 
-        raise ZeroDivisionError("En módulo no puede ser 0 ni 2")
+    if p in {0,2}: #the modulus cannot be 0 or an even prime
+        raise ZeroDivisionError("The modulus cannot be 0 or 2")
     if not es_primo(p): 
-        raise IncompatibleEquationError("El módulo escogido no es primo")
+        raise IncompatibleEquationError("The chosen modulus is not prime")
    
-    # Normalizamos n al rango [0, p-1]
+    # Normalise n to the range [0, p-1]
     n %= p
 
     if n == 0: 
-        return 0 #n es múltiplo de p
-    # Criterio de Euler: (an/p) ≡ n^{(p-1)/2} (mod p)
+        return 0 #n is a multiple of p
+    # Euler's criterion: (n/p) ≡ n^{(p-1)/2} (mod p)
     r = potencia_mod_p(n, (p - 1) // 2, p)
 
     return 1 if r == 1 else -1    # (p-1) ≡ -1 (mod p)
 
 
 def resolver_sistema_congruencias(alist:List[int], blist:List[int], plist:List[int])->Tuple[int,int]:
-    """ Dadas tres listas de números enteros [a_1,...,a_n], [b_1,...,b_n] y [p_1,...,p_n], resuelve el sistema de congruencias
+    """ Given three lists of integers [a_1,...,a_n], [b_1,...,b_n] and [p_1,...,p_n], solves the system of congruences
     
     a_i * x = b_i (mod p_i)   i=1,...,n
     
-    devolviendo un entero r y un módulo m tales que las soluciones del sistema corresponden a todos los enteros
-    x congruentes con r módulo m.
+    returning an integer r and a modulus m such that the solutions of the system are all the integers
+    x congruent to r modulo m.
 
     Args:
-        alist (List[int]): Lista de coeficientes de la variable x, [a_1,...,a_n].
-        blist (List[int]): Lista de términos independientes [b_1,...,b_n].
-        plist (List[int]): Lista de módulos [p_1,...,p_n]
+        alist (List[int]): List of coefficients of the variable x, [a_1,...,a_n].
+        blist (List[int]): List of independent terms [b_1,...,b_n].
+        plist (List[int]): List of moduli [p_1,...,p_n]
     
     Returns: (r,m)
-        r (int): Entero entre 0 y m-1.
-        m (int): Entero positivo, módulo de la solución.
+        r (int): Integer between 0 and m-1.
+        m (int): Positive integer, modulus of the solution.
 
     Raises:
-        IncompatibleEquationError: Si no es posible resolver el sistema.
+        IncompatibleEquationError: If the system cannot be solved.
 
     Examples:
         resolverSistema([2;3;5])=(4,5)
         resolverSistema([2;4;6])=(2,3)
         resolverSistema([1;1;3],[4;7;11])=(10,33)        
     """
-    restrictions = {}  #clave: primo, valor: (exponente_max, resto_mod_p^exponente_max)
+    restrictions = {}  #key: prime, value: (max_exponent, remainder_mod_p^max_exponent)
     
     for a, b, p in zip(alist, blist, plist):
 
         g = mcd(a, p)
-        if b % g != 0:  #No existe x que al multiplicar por a de resto b en múdulo p
-            raise IncompatibleEquationError("Sistema incompatible")
-        #Utilizamos el teorema de simplificación de factores comunes ka ≡ kb (mód km) <-> a ≡ b (mód m)
+        if b % g != 0:  #There is no x that multiplied by a leaves remainder b modulo p
+            raise IncompatibleEquationError("Incompatible system")
+        #Use the common-factor simplification theorem ka ≡ kb (mod km) <-> a ≡ b (mod m)
         a_simp = a // g
         b_simp = b // g
         p_simp = p // g
 
-        inv_a = inversa_mod_p(a_simp, p_simp)   #Sacamos la inversa de a para despejar x
-        c = (b_simp * inv_a) % p_simp   #Obtenemos el resto que tiene que dejar x al dividirlo por p_simp
+        inv_a = inversa_mod_p(a_simp, p_simp)   #Get the inverse of a to isolate x
+        c = (b_simp * inv_a) % p_simp   #Get the remainder x must leave when divided by p_simp
 
-        factors = factorizar(p_simp)    #descomponemos el módulo en factores primos
-        for prime, exp in factors.items():  #recorremos cada primo con su exponente
+        factors = factorizar(p_simp)    #factorise the modulus into primes
+        for prime, exp in factors.items():  #iterate over each prime and its exponent
             mod_prime = pow(prime,exp)
-            rest_prime = c % mod_prime  #Calculamos el resto con el módulo del primo
+            rest_prime = c % mod_prime  #Compute the remainder modulo the prime power
 
-            if prime in restrictions:  #Si el primo ya esta en el dic comprobamos la compatibilidad del sistema
+            if prime in restrictions:  #If the prime is already in the dict, check the system's compatibility
 
                 exp_actual, rest_actual = restrictions[prime]
-                if exp > exp_actual and rest_prime % (pow(prime,exp_actual)) == rest_actual:    #Si el exponente es mayor que el anterior comprobamos congruencia entre restos
-                    restrictions[prime] = (exp, rest_prime)   #Actualizamos el exponente y resto
-                elif exp == exp_actual and rest_prime == rest_actual:   #Si los exponentes son iguales comprobamos que los restos también lo sean
+                if exp > exp_actual and rest_prime % (pow(prime,exp_actual)) == rest_actual:    #If the exponent is larger than the previous one, check the remainders are congruent
+                    restrictions[prime] = (exp, rest_prime)   #Update the exponent and remainder
+                elif exp == exp_actual and rest_prime == rest_actual:   #If the exponents are equal, check the remainders are equal too
                     pass
-                elif rest_actual % (pow(prime, exp)) == rest_prime:     #Cuando el exponente es menor que el anterior tambien comprobamos congruencia entre restos
+                elif rest_actual % (pow(prime, exp)) == rest_prime:     #When the exponent is smaller than the previous one, also check the remainders are congruent
                     pass
                 else:
-                    raise IncompatibleEquationError("Sistema incompatible")     #Si no se da ninguno de los casos anteriores el sistema es incompatible
+                    raise IncompatibleEquationError("Incompatible system")     #If none of the cases above holds, the system is incompatible
                 
-            else:   #Si no estaba el primo en el diccionario lo añadimos con su exponente y resto
+            else:   #If the prime was not in the dictionary, add it with its exponent and remainder
                 restrictions[prime] = (exp, rest_prime)
     
-    #Una vez hemos factorizado todos los módulos nos queda un sistema con módulos coprimos dos a dos. Por lo que aplicamos el teorema chino del resto
+    #Once all the moduli are factorised we have a system with pairwise coprime moduli, so we apply the Chinese remainder theorem
     final_rest, final_module = 0, 1 
     for prime, (exp, rest) in restrictions.items():
 
         mod_prime = pow(prime, exp)
-        inv_final_module = inversa_sin_verificacion(final_module, mod_prime) #Como el módulo es la potencia de un número primo distinto de los agrupados en final_module son coprimos
-        t = ((rest - final_rest) * inv_final_module) % mod_prime #Calculamos el incremento
+        inv_final_module = inversa_sin_verificacion(final_module, mod_prime) #Since the modulus is a power of a prime different from those in final_module, they are coprime
+        t = ((rest - final_rest) * inv_final_module) % mod_prime #Compute the increment
         final_rest = final_rest + t * final_module
-        final_module *= mod_prime  # Multiplicamos los módulos ya que al ser coprimos el mcm de ellos es su multiplicación
-        final_rest %= final_module      # normalizamos el resultado
+        final_module *= mod_prime  # Multiply the moduli: since they are coprime, their lcm is their product
+        final_rest %= final_module      # normalise the result
     return (final_rest % final_module, final_module)
 
 def ecuacion_cuadratica(a:int,b:int,c:int,p:int)->Tuple[int,int]:
-    """ Halla, si es posible, las dos posibles soluciones de la ecuación cuadrática ax^2+bx+c=0 (mod p).
-    Devuelve una tupla con las dos raíces (distintas o una misma raíz repetida en caso de ser doble).
+    """ Finds, if possible, the two possible solutions of the quadratic equation ax^2+bx+c=0 (mod p).
+    Returns a tuple with the two roots (distinct, or the same root repeated if it is a double root).
 
     Args:
-        a (int): Coeficiente de x^2.
-        b (int): Coeficiente de x.
-        c (int): Término independiente.
-        p (int): Módulo. Se asume que es un número primo.
+        a (int): Coefficient of x^2.
+        b (int): Coefficient of x.
+        c (int): Independent term.
+        p (int): Modulus. Assumed to be a prime number.
     
     Returns: (x1,x2)
-        x1 (int): Primera solución. Entero entre 0 y p-1.
-        x2 (int): Segunda solución. Entero entre 0 y p-1.
+        x1 (int): First solution. Integer between 0 and p-1.
+        x2 (int): Second solution. Integer between 0 and p-1.
 
     Raises:
-        IncompatibleEquationError: Si no es posible resolver la ecuación.
+        IncompatibleEquationError: If the equation cannot be solved.
 
     Examples:
         ecuacion_cuadratica(4,1,3,11)
         ecuacion_cuadratica(4,1,5,11)=(3, 5)
         ecuacion_cuadratica(1,2,1,11)=(10,10)
     """
-    #Opcional
+    #Optional
     pass
 
 
 def raiz_mod_p(n:int,p:int)->int:
-    """ Encuentra, si existe, una raíz cuadrada para un entero n módulo un número primo p.
+    """ Finds, if it exists, a square root of an integer n modulo a prime number p.
 
     Args:
-        n (int): Entero del que se desea hallar la raíz.
-        p (int): Módulo. Se asume que es un número primo.
+        n (int): Integer whose root we want to find.
+        p (int): Modulus. Assumed to be a prime number.
     
     Returns:
-        int: Entero x entre 0 y p-1 tal que x^2 = n (mod p).
+        int: Integer x between 0 and p-1 such that x^2 = n (mod p).
 
     Raises:
-        IncompatibleEquationError: Si no es posible hallar dicha raíz.
+        IncompatibleEquationError: If no such root can be found.
 
     Examples:
         raiz_mod_p(2,7)=3
     """
-    #Opcional
-    # Error módulo 0
+    #Optional
+    # Modulus 0 error
     if p == 0:
-        raise ZeroDivisionError("módulo 0")
-    # Normalizamos n a [0,p-1]
+        raise ZeroDivisionError("modulus 0")
+    # Normalise n to [0,p-1]
     n = n % p
-    # Pureba desde 0 hasta p-1
+    # Try from 0 to p-1
     for x in range(p):
         if (x * x) % p == n:
-            # Se devuelve la primera que se halla
+            # Return the first one found
             return x
-    # Si no, no exite la raíz
-    raise IncompatibleEquationError("no existe raíz")
+    # Otherwise, the root does not exist
+    raise IncompatibleEquationError("no root exists")

@@ -1,84 +1,84 @@
 """
 imatlab_benchmark.py
 
-Matemática Discreta - IMAT
+Discrete Mathematics - IMAT
 ICAI, Universidad Pontificia Comillas
 
-Descripción:
-Script para la medición de tiempos de ejecución del programa IMAT-LAB.
+Description:
+Script for measuring the execution time of the IMAT-LAB program.
 
-Instrucciones de uso:
-Modificar las listas de ficheros de entrada y de salida para utilizar distintos
+Usage:
+Edit the lists of input and output files to use different
 benchmarks.
 
-El bucle principal contiene código para ejecutar una medición de tiempos (benchmarking)
-y/o hacer un perfilado (profiling) del código usando cada uno de los ficheros proporcionados.
-Coméntese alguna de estas líneas si no se desea hacer el benchmarking o el profiling.
+The main loop contains code to run a timing measurement (benchmarking)
+and/or profile the code using each of the provided files.
+Comment out either of these lines if you do not want benchmarking or profiling.
 """
 
 import timeit
 import cProfile
 import imatlab
 
-#Número de repeticiones de la toma de tiempos.
-#Aumentarlo disminuye efectos aleatorios o casuales en el código, pero aumenta el coste de ejecución.
+#Number of repetitions of the timing measurement.
+#Increasing it reduces random or incidental effects in the code, but increases the execution cost.
 NITERS=100
 
 def testRun(in_file:str, out_file:str):
-    """ Wrapper para timeit y profile que abre los ficheros proporcionados
-    y ejecuta sus comandos usando el módulo imatlab.
-    
+    """ Wrapper for timeit and profile that opens the provided files
+    and runs their commands using the imatlab module.
+
     Args:
-        in_file (str): Nombre del fichero de entrada.
-        out_file (str): Nombre del fichero de salida.
-    
+        in_file (str): Name of the input file.
+        out_file (str): Name of the output file.
+
     Returns: Void
-    
+
     Raises:
-        IOError: Alguno de los ficheros no existe.
+        IOError: One of the files does not exist.
     """
     with open(in_file,"r") as fin:
         with open(out_file,"w",encoding="utf-8") as fout:
             imatlab.run_commands(fin,fout)
 
 def measureTime(in_file:str, out_file:str)->float:
-    """ Mide el tiempo medio de ejecución de  imatlab leyendo la entrada desde el fichero
-    in_file y guardando la salida en el fichero out_file.
+    """ Measures the mean execution time of imatlab reading the input from the file
+    in_file and saving the output to the file out_file.
 
     Args:
-        in_file (str): Nombre del fichero de entrada.
-        out_file (str): Nombre del fichero de salida.
-    
+        in_file (str): Name of the input file.
+        out_file (str): Name of the output file.
+
     Returns:
-        float: Tiempo de ejecución medio medido
+        float: Measured mean execution time
 
     Raises:
-        IOError: Alguno de los ficheros no existe.
+        IOError: One of the files does not exist.
     """
     t=timeit.Timer("testRun('"+in_file+"','"+out_file+"')","from __main__ import testRun")
     return(t.timeit(number=NITERS)/NITERS)
 
 def profile(in_file:str, out_file:str):
-    """ Imprime en pantalla un profile de la ejecución de imatlab sobre la entrada leida
-    desde el fichero in_file y guardando la salida en el fichero out_file.
+    """ Prints a profile of the execution of imatlab on the input read
+    from the file in_file, saving the output to the file out_file.
 
     Args:
-        in_file (str): Nombre del fichero de entrada.
-        out_file (str): Nombre del fichero de salida.
-    
+        in_file (str): Name of the input file.
+        out_file (str): Name of the output file.
+
     Returns:
         None
 
     Raises:
-        IOError: Alguno de los ficheros no existe.
+        IOError: One of the files does not exist.
     """
     cProfile.run("testRun('"+in_file+"','"+out_file+"')")
 
 
 
 if __name__ == "__main__":
-    #Inicar el listado de ficheros de entrada y de salida para procesar
-    #Comentar, añadir o eliminar ficheros según sea necesario.
+    #Set up the list of input and output files to process
+    #Comment out, add or remove files as needed.
     #in_files=["mcdTest.txt"]
     #out_files=["mcdTest_obtained.txt"]
     #in_files=["primosTest.txt","factorTest.txt","mcdTest.txt","potenciaTest.txt","invTest.txt","eulerTest.txt","sistemaTest.txt"]
@@ -96,15 +96,15 @@ if __name__ == "__main__":
     # in_files=["sistemaTest.txt"]
     # out_files=["sistemaTest_out.txt"]
     
-    #Lista de tiempos obtenidos
+    #List of measured times
     runtime=[]
     for i in range(0,len(in_files)):
-        #Comentar una línea o la otra para alternar benchmarking/profiling
+        #Comment out one line or the other to switch between benchmarking/profiling
         try:
             runtime.append(measureTime(in_files[i],out_files[i]))
             profile(in_files[i],out_files[i])
         except IOError:
             runtime.append(0)
-            print("El fichero "+in_files[i]+" no existe.\n")
+            print("The file "+in_files[i]+" does not exist.\n")
 
     print(runtime)
